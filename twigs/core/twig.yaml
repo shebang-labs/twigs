@@ -1,0 +1,19 @@
+# A Twig: api/schemas/manifests/twig.json.
+# A bundle: a Hub installs it at start when it is missing.
+twig: twig-nest/twig/v1
+name: core
+version: 1.0.0
+summary: 'What every Hub starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code'
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- bundle
+requires:
+- name: kubernetes
+- name: http
+- name: github
+- name: gitlab
+- name: registry
+- name: network
+- name: ambient
+- name: claude-code

@@ -1,0 +1,41 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: http
+version: 1.0.0
+summary: HTTP APIs with an API key, such as a model provider's
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- http
+authenticator_types:
+- authenticator_type: http.api_key
+  version: 1
+  provider: http
+  summary: An API key in an environment variable, for Datadog, Grafana, PagerDuty, GitHub, and any HTTP API
+  interactive: false
+  secrets:
+    key:
+      as: env
+      env: '{params.env}'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - env
+    properties:
+      env:
+        type: string
+        pattern: ^[A-Z][A-Z0-9_]{0,63}$
+        description: The variable the key is set as (DD_API_KEY, GH_TOKEN).
+      check:
+        type: string
+        minLength: 1
+        maxLength: 512
+        pattern: ^[A-Za-z0-9 _./=:@%+,'"-]+$
+        description: A command that exits 0 when the key works, run without a shell with the key in the variable (gh api user). Without one, the Credential's identity is not proven and it stays unverified.
+  usage: '{params.env} is set'
+  preflight:
+    authn:
+      run: '{params.check}'
+      timeout: 20s
+  permissions_hint: 'Create a key with read scopes only (Datadog: an application key with read scopes; GitHub: a fine-grained token with read access), and put it into a Secret of the Environment.'

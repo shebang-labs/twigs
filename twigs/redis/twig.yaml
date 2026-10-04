@@ -1,0 +1,61 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: redis
+version: 1.0.0
+summary: Redis access with a password, and redis-cli
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- database
+- cache
+authenticator_types:
+- authenticator_type: redis.password
+  version: 1
+  provider: redis
+  summary: 'A Redis password (the default user): redis-cli reads it from REDISCLI_AUTH'
+  interactive: false
+  secrets:
+    password:
+      as: env
+      env: REDISCLI_AUTH
+  env:
+    REDIS_HOST: '{params.host}'
+    REDIS_PORT: '{params.port}'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - host
+    - port
+    properties:
+      host:
+        type: string
+        pattern: ^[A-Za-z0-9.-]{1,253}$
+        description: The server's host name or address, as the Runner reaches it.
+      port:
+        type: string
+        pattern: ^[0-9]{1,5}$
+        description: 'The port: 6379 for most servers.'
+  requires_tools:
+  - redis-cli
+  usage: redis-cli -h $REDIS_HOST -p $REDIS_PORT (the password is set)
+  preflight:
+    authn:
+      run: redis-cli -h {params.host} -p {params.port} --no-auth-warning ping
+      expect:
+        contains: PONG
+      timeout: 15s
+  permissions_hint: 'A password for a server or ACL default user limited to read commands (+@read +info +ping +slowlog -@dangerous); never one that can FLUSHALL or CONFIG SET below act. redis-cli opens raw TCP: across a Tailscale or WireGuard Hop the Hop needs kernel mode.'
+tools:
+- id: redis-cli
+  version: 8.0.2
+  summary: The Redis CLI (redis-cli)
+  install: |
+    RUN set -eu; \
+        apt-get update; \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends redis-tools=5:8.0.2-3+deb13u2; \
+        rm -rf /var/lib/apt/lists/*
+  provides:
+  - binary: redis-cli
+    version_command: redis-cli --version
+  notes: 'BSD-3-Clause (redis-tools 8.0 in Debian). A Debian package at the pinned version, from the base''s snapshot. redis-cli opens raw TCP: through a Hop''s network it needs kernel mode.'

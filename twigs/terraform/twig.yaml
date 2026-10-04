@@ -1,0 +1,32 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: terraform
+version: 1.0.0
+summary: The Terraform CLI
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- iac
+tools:
+- id: terraform
+  version: 1.16.4
+  summary: The HashiCorp Terraform CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://releases.hashicorp.com/terraform/1.16.4/terraform_1.16.4_linux_amd64.zip sha=dc94af0eef1147718ad7c8daea792ed199e3e0492eec180d0adafa2a65a879df ;; \
+          arm64) url=https://releases.hashicorp.com/terraform/1.16.4/terraform_1.16.4_linux_arm64.zip sha=8263f301cb1a24489a4adeed147bf28504053f77237b3ea97a0ef2972659de30 ;; \
+          *) echo "terraform: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/terraform.dl "${url}"; \
+        echo "${sha}  /tmp/terraform.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/terraform.d; \
+        unzip -q /tmp/terraform.dl -d /tmp/terraform.d; \
+        install -m 0755 /tmp/terraform.d/terraform /usr/local/bin/terraform; \
+        rm -rf /tmp/terraform.dl /tmp/terraform.d
+    ENV CHECKPOINT_DISABLE=1
+  provides:
+  - binary: terraform
+    version_command: terraform version
+  notes: 'BUSL-1.1. Checksums: terraform_1.16.4_SHA256SUMS on releases.hashicorp.com. No checkpoint calls.'

@@ -1,7 +1,7 @@
-# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+# A Twig: api/schemas/manifests/twig.json.
 twig: twig-nest/twig/v1
 name: logcli
-version: 1.0.0
+version: 1.0.1
 summary: Grafana Loki's logcli, to query logs with LogQL
 publisher: Twig Nest project
 homepage: https://grafana.com/docs/loki/latest/query/logcli/

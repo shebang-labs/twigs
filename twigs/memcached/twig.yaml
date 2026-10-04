@@ -1,0 +1,24 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: memcached
+version: 1.0.0
+summary: memcached's command-line tools
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- cache
+tools:
+- id: memcached-tools
+  version: 1.1.4
+  summary: The libmemcached tools (memcstat, memcping, memcdump) to read a memcached server's stats and keys
+  install: |
+    RUN set -eu; \
+        apt-get update; \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libmemcached-tools=1.1.4-1.1+b2; \
+        rm -rf /var/lib/apt/lists/*
+  provides:
+  - binary: memcstat
+    version_command: memcstat --version
+  - binary: memcping
+    version_command: memcping --version
+  notes: 'BSD-3-Clause. A Debian package at the pinned version, from the base''s snapshot. memcached has no login: reach it through a Route (a net.tcp Hop checks the port), and read it with memcstat --servers=<host>:11211. Raw TCP: through a Hop''s network it needs kernel mode.'

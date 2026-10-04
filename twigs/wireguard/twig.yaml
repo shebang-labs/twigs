@@ -1,0 +1,91 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: wireguard
+version: 1.0.0
+summary: 'Join a WireGuard network for a Job: the Hop kind, wireguard-tools, and wireproxy'
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- network
+- vpn
+hop_kinds:
+- type: net.wireguard
+  version: 1
+  summary: Join a WireGuard network for the Job in userspace (wireproxy), reached through the exported proxies
+  params:
+    type: object
+    additionalProperties: false
+    properties: {}
+  preflight:
+    run: nc -z 127.0.0.1 {hop.port2}
+    expect:
+      exit_code: 0
+    timeout: 10s
+  remedy:
+    kind: human
+    text: Give the Hop's Secret a wg-quick configuration whose peer is up and reachable from the Runner's network, with AllowedIPs covering the Targets.
+  interactive: false
+  requires_tools:
+  - wireproxy
+  - nc
+  secrets:
+    config:
+      as: file
+      path: wg.conf
+  files:
+  - name: wireproxy
+    content: |
+      WGConfig = {secrets.config}
+
+      [Socks5]
+      BindAddress = 127.0.0.1:{hop.port1}
+
+      [http]
+      BindAddress = 127.0.0.1:{hop.port2}
+  up:
+  - run: wireproxy -s -c {file.wireproxy}
+    daemon: true
+  ready:
+    run: nc -z 127.0.0.1 {hop.port1}
+    timeout: 30s
+  env:
+    ALL_PROXY: socks5h://127.0.0.1:{hop.port1}
+    HTTPS_PROXY: http://127.0.0.1:{hop.port2}
+    HTTP_PROXY: http://127.0.0.1:{hop.port2}
+    NO_PROXY: localhost,127.0.0.1,::1
+tools:
+- id: wireguard-tools
+  version: 1.0.20210914-3
+  summary: wg and wg-quick, for WireGuard in kernel mode
+  install: |
+    RUN set -eu; \
+        apt-get update; \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends wireguard-tools=1.0.20210914-3; \
+        rm -rf /var/lib/apt/lists/*
+  provides:
+  - binary: wg
+    version_command: wg --version
+  - binary: wg-quick
+    version_command: wg --version
+  notes: GPL-2.0. A Debian package at the pinned version, from the base's snapshot. wg-quick needs a Runner with net_admin and /dev/net/tun.
+- id: wireproxy
+  version: 1.1.3
+  summary: A WireGuard client that exposes the tunnel as a SOCKS5 and HTTP proxy, for net.wireguard Hops
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://github.com/windtf/wireproxy/releases/download/v1.1.3/wireproxy_linux_amd64.tar.gz sha=e88c1d090740373fc606c1bafd81d9a5eadc642cce5667616e20e9d7a444f51c ;; \
+          arm64) url=https://github.com/windtf/wireproxy/releases/download/v1.1.3/wireproxy_linux_arm64.tar.gz sha=370e00bd2167960d1ecd1c3c1439715bbaa94a0a110a2040468670c9af6021b6 ;; \
+          *) echo "wireproxy: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/wireproxy.dl "${url}"; \
+        echo "${sha}  /tmp/wireproxy.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/wireproxy.d; \
+        tar -xzf /tmp/wireproxy.dl -C /tmp/wireproxy.d; \
+        install -m 0755 /tmp/wireproxy.d/wireproxy /usr/local/bin/wireproxy; \
+        rm -rf /tmp/wireproxy.dl /tmp/wireproxy.d
+  provides:
+  - binary: wireproxy
+    version_command: wireproxy --version
+  notes: 'ISC. Checksums: the GitHub release asset digests of windtf/wireproxy v1.1.3 (formerly pufferffish/wireproxy).'

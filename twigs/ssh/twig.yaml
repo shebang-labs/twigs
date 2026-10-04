@@ -1,7 +1,7 @@
-# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+# A Twig: api/schemas/manifests/twig.json.
 twig: twig-nest/twig/v1
 name: ssh
-version: 1.1.0
+version: 1.1.1
 summary: SSH access to hosts with a private key and pinned host keys
 publisher: Twig Nest project
 homepage: https://www.openssh.com/manual.html

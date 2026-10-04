@@ -1,0 +1,95 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: claude-code
+version: 1.0.0
+summary: Claude Code as an agent, over the Agent Client Protocol
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- agent
+- acp
+tools:
+- id: claude-code
+  version: 2.1.274
+  summary: Claude Code, the agent runtime
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://downloads.claude.ai/claude-code-releases/2.1.274/linux-x64/claude sha=15e2d05148f801b5774032faad87e624ecd172e9903288bda448b892eb58fa07 ;; \
+          arm64) url=https://downloads.claude.ai/claude-code-releases/2.1.274/linux-arm64/claude sha=2db904daea17addff9de557ba26a725916888aa7b546e2c5dd989c20d9d49ab3 ;; \
+          *) echo "claude-code: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/claude-code.dl "${url}"; \
+        echo "${sha}  /tmp/claude-code.dl" | sha256sum --check --strict -; \
+        install -m 0755 /tmp/claude-code.dl /usr/local/bin/claude; \
+        rm -f /tmp/claude-code.dl
+    ENV DISABLE_AUTOUPDATER=1
+  provides:
+  - binary: claude
+    version_command: claude --version
+  notes: 'Proprietary (Anthropic). Native build; checksums: the per-platform checksum fields of claude-code-releases/2.1.274/manifest.json. The Image pins the version, so the updater is off.'
+- id: claude-agent-acp
+  version: 0.85.1
+  summary: Claude Code over the Agent Client Protocol (Zed's adapter on the Claude Agent SDK, which carries its own Claude Code)
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) node=node-v22.23.3-linux-x64 sha=df450af89261115ef9f9e3830c3eeb2cc9213b63c720b1af623cb5dcbe2e02de ;; \
+          arm64) node=node-v22.23.3-linux-arm64 sha=a44aeb94849a299b22df10b9e622ec2f605c2183501bc40590705131de7c740f ;; \
+          *) echo "claude-agent-acp: no Node for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/claude-agent-acp-node.txz "https://nodejs.org/dist/v22.23.3/${node}.tar.xz"; \
+        echo "${sha}  /tmp/claude-agent-acp-node.txz" | sha256sum --check --strict -; \
+        mkdir -p /opt/claude-agent-acp/node; \
+        tar -xJf /tmp/claude-agent-acp-node.txz -C /opt/claude-agent-acp/node --strip-components=1; \
+        rm -f /tmp/claude-agent-acp-node.txz; \
+        PATH="/opt/claude-agent-acp/node/bin:${PATH}" npm install --prefix /opt/claude-agent-acp --ignore-scripts --omit=dev --no-fund --no-audit --no-update-notifier \
+          --before=2026-10-04T12:00:00Z @agentclientprotocol/claude-agent-acp@0.85.1; \
+        rm -rf /root/.npm; \
+        printf '#!/bin/sh\nexec /opt/claude-agent-acp/node/bin/node /opt/claude-agent-acp/node_modules/@agentclientprotocol/claude-agent-acp/dist/index.js "$@"\n' > /usr/local/bin/claude-agent-acp; \
+        chmod 0755 /usr/local/bin/claude-agent-acp
+  provides:
+  - binary: claude-agent-acp
+    version_command: claude-agent-acp --version
+  notes: 'Apache-2.0. Node 22.23.3 from nodejs.org, checked against its SHASUMS256; the adapter at its exact version from npm with dependencies as published before 2026-10-04 (npm checks each package''s integrity), install scripts off. Self-contained under /opt/claude-agent-acp: it needs no other Tool.'
+agents:
+- id: claude-code
+  summary: 'Claude Code (Anthropic) over the Agent Client Protocol, through Zed''s claude-agent-acp adapter: the timeline has its messages, tool calls and their output, plan, and spend'
+  binary: claude-agent-acp
+  tool: claude-agent-acp
+  args: []
+  acp:
+    session_meta:
+      systemPrompt:
+        append: '{system_prompt}'
+      claudeCode:
+        options:
+          maxBudgetUsd: '{budget_usd}'
+    session_config:
+      mode: bypassPermissions
+  context_files:
+  - CLAUDE.md
+  resume:
+    state: .claude
+  key_env:
+  - ANTHROPIC_API_KEY
+  - ANTHROPIC_AUTH_TOKEN
+  - CLAUDE_CODE_OAUTH_TOKEN
+  pass_env:
+  - ANTHROPIC_API_KEY
+  - ANTHROPIC_BASE_URL
+  - ANTHROPIC_MODEL
+  - CLAUDE_CODE_USE_BEDROCK
+  - CLAUDE_CODE_USE_VERTEX
+  - ANTHROPIC_VERTEX_PROJECT_ID
+  - CLOUD_ML_REGION
+  - AWS_REGION
+  - AWS_ROLE_ARN
+  - AWS_WEB_IDENTITY_TOKEN_FILE
+  env:
+    DISABLE_AUTOUPDATER: '1'
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+    CLAUDE_CONFIG_DIR: '{job.dir}/.claude'
+  version_command: claude-agent-acp --version

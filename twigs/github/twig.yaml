@@ -1,0 +1,62 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: github
+version: 1.0.0
+summary: GitHub access with a token, for git and the gh CLI
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- git
+- github
+authenticator_types:
+- authenticator_type: github.token
+  version: 2
+  provider: github
+  summary: A GitHub token (fine-grained, or a GitHub App installation token) for git over HTTPS, gh, and the GitHub API; a write one lets an agent open pull requests through ops pr, which pushes and opens them with it
+  interactive: false
+  secrets:
+    token:
+      as: env
+      env: GH_TOKEN
+  params:
+    type: object
+    additionalProperties: false
+    properties:
+      host:
+        type: string
+        pattern: ^[a-z0-9][a-z0-9.-]*(:[0-9]{1,5})?$
+        default: github.com
+        description: 'The GitHub host: github.com (the default), or a GitHub Enterprise Server host, whose API is https://<host>/api/v3.'
+  git:
+    host: '{params.host}'
+    username: x-access-token
+    password_env: GH_TOKEN
+  usage: git clone https://{params.host}/<owner>/<repo> works as it is; GH_TOKEN is set (gh)
+  preflight:
+    authn:
+      run: gh api user
+      timeout: 20s
+  permissions_hint: 'A read Credential: a fine-grained token with read access to the repositories the agent investigates. A write Credential for ops pr: Contents (read and write) and Pull requests (read and write) on the repositories it may open pull requests to, and nothing else; branch protection keeps the review.'
+tools:
+- id: gh
+  version: 2.101.0
+  summary: The GitHub CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://github.com/cli/cli/releases/download/v2.101.0/gh_2.101.0_linux_amd64.tar.gz sha=9bca2d1c16825f109907a23307628a2f0698fbf99662b73a5cf0b020293072b8 ;; \
+          arm64) url=https://github.com/cli/cli/releases/download/v2.101.0/gh_2.101.0_linux_arm64.tar.gz sha=b57e8063f18862647c9d22727c32e9da1b963f8bf9db648fe123a6975695640f ;; \
+          *) echo "gh: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/gh.dl "${url}"; \
+        echo "${sha}  /tmp/gh.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/gh.d; \
+        tar -xzf /tmp/gh.dl -C /tmp/gh.d; \
+        install -m 0755 /tmp/gh.d/gh_2.101.0_linux_${TARGETARCH}/bin/gh /usr/local/bin/gh; \
+        rm -rf /tmp/gh.dl /tmp/gh.d
+    ENV GH_NO_UPDATE_NOTIFIER=1
+  provides:
+  - binary: gh
+    version_command: gh --version
+  notes: 'MIT. Checksums: gh_2.101.0_checksums.txt in the GitHub release. No update notifier.'

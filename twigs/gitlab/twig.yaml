@@ -1,0 +1,44 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: gitlab
+version: 1.0.0
+summary: GitLab access with a token, for git
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- git
+- gitlab
+authenticator_types:
+- authenticator_type: gitlab.token
+  version: 1
+  provider: gitlab
+  summary: A GitLab token (personal, project, or group access token) for git over HTTPS, glab, and the GitLab API
+  interactive: false
+  secrets:
+    token:
+      as: env
+      env: GITLAB_TOKEN
+  params:
+    type: object
+    additionalProperties: false
+    properties:
+      host:
+        type: string
+        pattern: ^[a-z0-9][a-z0-9.-]*(:[0-9]{1,5})?$
+        default: gitlab.com
+        description: 'The GitLab host: gitlab.com (the default) or a self-managed instance.'
+  env:
+    GITLAB_HOST: '{params.host}'
+  git:
+    host: '{params.host}'
+    username: oauth2
+    password_env: GITLAB_TOKEN
+  usage: git clone https://{params.host}/<group>/<project> works as it is; GITLAB_TOKEN and GITLAB_HOST are set (glab)
+  requires_tools:
+  - sh
+  - curl
+  preflight:
+    authn:
+      run: 'sh -c ''curl -fsS -o /dev/null -H "PRIVATE-TOKEN: $GITLAB_TOKEN" https://{params.host}/api/v4/user'''
+      timeout: 20s
+  permissions_hint: A token with read_api and read_repository on the projects the agent investigates, and nothing else.

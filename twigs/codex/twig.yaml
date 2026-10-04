@@ -1,0 +1,77 @@
+# A Twig: api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: codex
+version: 1.0.0
+summary: Codex CLI as an agent, over the Agent Client Protocol
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- agent
+- acp
+tools:
+- id: codex
+  version: 0.157.1
+  summary: Codex CLI, the agent runtime
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://github.com/openai/codex/releases/download/rust-v0.157.1/codex-x86_64-unknown-linux-musl.tar.gz sha=e98c1e8e028e8137fa2d2415c82ec58e7b3701a627e3554aace5b3ca31454af2 ;; \
+          arm64) url=https://github.com/openai/codex/releases/download/rust-v0.157.1/codex-aarch64-unknown-linux-musl.tar.gz sha=4c6b1c17c1c5fd0d4fb2951b7481867b95ea732b1feab269c98588b15db16253 ;; \
+          *) echo "codex: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/codex.dl "${url}"; \
+        echo "${sha}  /tmp/codex.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/codex.d; \
+        tar -xzf /tmp/codex.dl -C /tmp/codex.d; \
+        install -m 0755 /tmp/codex.d/codex-*-unknown-linux-musl /usr/local/bin/codex; \
+        rm -rf /tmp/codex.dl /tmp/codex.d
+  provides:
+  - binary: codex
+    version_command: codex --version
+  notes: 'Apache-2.0. Checksums: the GitHub asset digests of the openai/codex rust-v0.157.1 release.'
+- id: codex-acp
+  version: 2.1.1
+  summary: Codex over the Agent Client Protocol (Zed's adapter on codex app-server, which carries its own Codex)
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) node=node-v22.23.3-linux-x64 sha=df450af89261115ef9f9e3830c3eeb2cc9213b63c720b1af623cb5dcbe2e02de ;; \
+          arm64) node=node-v22.23.3-linux-arm64 sha=a44aeb94849a299b22df10b9e622ec2f605c2183501bc40590705131de7c740f ;; \
+          *) echo "codex-acp: no Node for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/codex-acp-node.txz "https://nodejs.org/dist/v22.23.3/${node}.tar.xz"; \
+        echo "${sha}  /tmp/codex-acp-node.txz" | sha256sum --check --strict -; \
+        mkdir -p /opt/codex-acp/node; \
+        tar -xJf /tmp/codex-acp-node.txz -C /opt/codex-acp/node --strip-components=1; \
+        rm -f /tmp/codex-acp-node.txz; \
+        PATH="/opt/codex-acp/node/bin:${PATH}" npm install --prefix /opt/codex-acp --ignore-scripts --omit=dev --no-fund --no-audit --no-update-notifier \
+          --before=2026-10-04T12:00:00Z @agentclientprotocol/codex-acp@2.1.1; \
+        rm -rf /root/.npm; \
+        printf '#!/bin/sh\nexec /opt/codex-acp/node/bin/node /opt/codex-acp/node_modules/@agentclientprotocol/codex-acp/dist/index.js "$@"\n' > /usr/local/bin/codex-acp; \
+        chmod 0755 /usr/local/bin/codex-acp
+  provides:
+  - binary: codex-acp
+    version_command: codex-acp --version
+  notes: 'Apache-2.0. Node 22.23.3 from nodejs.org, checked against its SHASUMS256; the adapter at its exact version from npm with dependencies as published before 2026-10-04 (npm checks each package''s integrity), install scripts off. Self-contained under /opt/codex-acp: it needs no other Tool.'
+agents:
+- id: codex
+  summary: 'Codex CLI (OpenAI) over the Agent Client Protocol, through Zed''s codex-acp adapter on codex app-server: the timeline has its messages, commands and their output, plan, and token usage'
+  binary: codex-acp
+  tool: codex-acp
+  args: []
+  acp:
+    auth_method: api-key
+    session_config:
+      mode: agent-full-access
+  resume:
+    state: .codex
+  key_env:
+  - OPENAI_API_KEY
+  - CODEX_API_KEY
+  pass_env:
+  - OPENAI_API_KEY
+  - OPENAI_BASE_URL
+  - CODEX_API_KEY
+  version_command: codex-acp --version

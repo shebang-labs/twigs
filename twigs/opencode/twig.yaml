@@ -1,7 +1,7 @@
-# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+# A Twig: api/schemas/manifests/twig.json.
 twig: twig-nest/twig/v1
 name: opencode
-version: 1.1.0
+version: 1.1.1
 summary: OpenCode as an investigating agent, driven over the Agent Client Protocol (any model provider)
 publisher: Twig Nest project
 homepage: https://opencode.ai/docs/acp/
@@ -31,7 +31,7 @@ tools:
   notes: 'MIT. Checksums: the release assets'' SHA-256 digests on GitHub. It speaks ACP natively (opencode acp).'
 agents:
 - id: opencode
-  summary: OpenCode over the Agent Client Protocol (ADR-0024); the Runner picks the Job's model through the session's model option, so set a Profile model such as claude-sonnet-5-5
+  summary: OpenCode over the Agent Client Protocol; the Runner picks the Job's model through the session's model option, so set a Profile model such as claude-sonnet-5-5
   binary: opencode
   tool: opencode
   args: [acp]
