@@ -1,0 +1,812 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/common.json",
+  "title": "Common",
+  "description": "Enumerations and small types shared across entities, manifests, events, and protocol messages. Where the current design narrows a value set, the enumeration holds only the values the code serves.",
+  "$defs": {
+    "AutonomyLevel": {
+      "description": "Autonomy level: observe reads only; propose proposes changes; propose_pr opens pull requests and proposes other changes; act makes changes. Enforced by the Runner, which runs every change as an action with a write Credential the agent never holds, and, in a session a person started, by their approval.",
+      "type": "string",
+      "enum": [
+        "observe",
+        "propose",
+        "propose_pr",
+        "act"
+      ]
+    },
+    "CredentialScope": {
+      "description": "Declared scope of a Credential or Grant. The Hub never delivers a write-scoped Credential's Secrets in an agent Job's Assign: only inside an action the level allows or a person approved, and an exec or preflight Job carries none.",
+      "type": "string",
+      "enum": [
+        "read",
+        "write"
+      ]
+    },
+    "JobType": {
+      "description": "One unit of remote execution: exec (a person's command, ), preflight (the access checks), build (an Image, on Forge), and agent (an AI agent working a task: an Incident or a question).",
+      "type": "string",
+      "enum": [
+        "preflight",
+        "exec",
+        "build",
+        "agent"
+      ]
+    },
+    "JobState": {
+      "description": "Job state machine; the Hub owns authoritative state.",
+      "type": "string",
+      "enum": [
+        "queued",
+        "leased",
+        "accepted",
+        "rejected",
+        "preparing",
+        "running",
+        "finalizing",
+        "succeeded",
+        "failed",
+        "cancelled",
+        "timed_out",
+        "lost"
+      ]
+    },
+    "HubRole": {
+      "description": "Hub authorization roles: five for humans and agent for Job tokens.",
+      "type": "string",
+      "enum": [
+        "viewer",
+        "responder",
+        "approver",
+        "editor",
+        "admin",
+        "agent"
+      ]
+    },
+    "EntityID": {
+      "title": "EntityID",
+      "description": "Identifier of a declared entity, chosen by the author on create and immutable. Lower case, digits, '-', '_', and '.', such as k8s-prod-eu-ro, prod-eu-vpc, or hop_wg_prod_eu.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,62}$",
+      "examples": [
+        "k8s-prod-eu",
+        "prod-eu-vpc",
+        "hop_wg_prod_eu"
+      ]
+    },
+    "ActionID": {
+      "title": "ActionID",
+      "description": "An action (ops act) within its Job, numbered by the Hub: a1, a2, and so on.",
+      "type": "string",
+      "pattern": "^a[0-9]{1,6}$"
+    },
+    "ActionState": {
+      "title": "ActionState",
+      "description": "An action's state: pending (waits for a person, in an interactive Job), approved (a person approved it, or the Job's level allows it unattended), proposed (recorded, not run: an unattended Job below act), rejected, expired (no decision in its window), done (it ran and exited 0), failed (it ran and did not, or could not run).",
+      "type": "string",
+      "enum": ["pending", "approved", "proposed", "rejected", "expired", "done", "failed"]
+    },
+    "QuestionID": {
+      "title": "QuestionID",
+      "description": "An agent's question (ops ask-human) within its Job, numbered by the Runner: q1, q2, and so on.",
+      "type": "string",
+      "pattern": "^q[0-9]{1,6}$"
+    },
+    "ULID": {
+      "title": "ULID",
+      "description": "Identifier of a runtime record (Job, Runner, event source, token, import, proposal, audit event): a ULID in Crockford base32 ('ULID, unique per attempt').",
+      "type": "string",
+      "pattern": "^[0-9A-HJKMNP-TV-Z]{26}$",
+      "examples": [
+        "01J8Z3N4Q5R6S7T8V9W0X1Y2Z3"
+      ]
+    },
+    "RevisionRef": {
+      "title": "RevisionRef",
+      "description": "A pinned revision of a declared entity, written <id>@rev<n> as in the Job spec's credential references ('k8s-prod-eu-ro@rev3').",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,62}@rev[1-9][0-9]*$",
+      "examples": [
+        "k8s-prod-eu-ro@rev3"
+      ]
+    },
+    "Duration": {
+      "title": "Duration",
+      "description": "A relative duration: a non-negative integer and one unit (ms, s, m, h), such as 60s, 15m, or 1h. Absolute deadlines use RFC 3339 timestamps instead. Compound forms such as 1h30m are not accepted.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(ms|s|m|h)$",
+      "examples": [
+        "60s",
+        "15m",
+        "1h"
+      ]
+    },
+    "Principal": {
+      "title": "Principal",
+      "description": "Who acted: '<kind>:<name>'. local:admin is the local admin, present in every deployment; user:<subject> is a person who logged in through SSO; job:<ulid> is a Job token (agent role), runner:<ulid> a Runner identity, system:hub the Hub itself, system:alerts an Alert Source's webhook.",
+      "type": "string",
+      "pattern": "^(local|user|job|runner|system):[A-Za-z0-9._@-]{1,128}$",
+      "examples": [
+        "local:admin",
+        "runner:01J8Z3N4Q5R6S7T8V9W0X1Y2Z3"
+      ]
+    },
+    "EntityKind": {
+      "title": "EntityKind",
+      "description": "The declared entity kinds that have revisions, audit, and proposals. tool and image: the tools Forge knows how to install, and the Runner images it builds from them; agent: an agent CLI the Runner can run; alert_source: an alerting tool that opens Incidents; notifier too: where the Hub tells people about reports and Incidents. Secrets are not a declared kind: they are values of an Environment, written and never read back, and not revisioned.",
+      "type": "string",
+      "enum": [
+        "environment",
+        "zone",
+        "owner",
+        "component",
+        "target",
+        "route",
+        "hop",
+        "credential",
+        "grant",
+        "profile",
+        "tool",
+        "image",
+        "agent",
+        "alert_source",
+        "notifier",
+        "connector"
+      ]
+    },
+    "TargetKind": {
+      "title": "TargetKind",
+      "description": "What a Target is.",
+      "type": "string",
+      "enum": [
+        "host",
+        "cluster",
+        "cloud_account",
+        "database",
+        "saas_api",
+        "http_service",
+        "registry",
+        "vault",
+        "repo",
+        "queue"
+      ]
+    },
+    "RunnerCapability": {
+      "title": "RunnerCapability",
+      "description": "What a Runner can do beyond running exec and preflight Jobs, advertised in EnrollRequest and Hello and required by a Job (scheduling is requirements within capabilities). build: its config names a BuildKit endpoint, so it is Forge and leases build Jobs. net_admin: it holds CAP_NET_ADMIN and passes it to its Jobs, so a Hop can join a network in kernel mode.",
+      "type": "string",
+      "enum": [
+        "build",
+        "net_admin"
+      ]
+    },
+    "Slots": {
+      "title": "Slots",
+      "description": "Slot counts by class ('free slots by class (probe, heavy)'). Proposal for Phase 0: exec and preflight Jobs use heavy slots; Probes are Phase 2, so probe is reported but unused.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "heavy"
+      ],
+      "properties": {
+        "probe": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "heavy": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "Labels": {
+      "title": "Labels",
+      "description": "Free-form key and value labels beyond the Environment and Zone (labels are local Runner configuration). Proposal: keys follow the Kubernetes label key grammar without a prefix.",
+      "type": "object",
+      "propertyNames": {
+        "pattern": "^[a-z0-9]([a-z0-9_.-]{0,61}[a-z0-9])?$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "maxLength": 253
+      }
+    },
+    "ReadinessStatus": {
+      "title": "ReadinessStatus",
+      "description": "Per-Target result of a preflight in the capability report.",
+      "type": "string",
+      "enum": [
+        "ready",
+        "degraded",
+        "blocked"
+      ]
+    },
+    "JobFailureReason": {
+      "title": "JobFailureReason",
+      "description": "Why a failed Job failed. prepare_timeout: the Job did not start within its prepare deadline; runtime_error: the Runner could not start, run, or stop the work; command_failed: an exec command or a build's buildctl ran and exited non-zero or was killed by a signal the Runner did not send; not_scheduled: no Runner leased the Job within its queue timeout (docs/specs/job-protocol.md section 7), and the summary carries the last wait reason. readiness_below_min, provider_unavailable, and budget_hard need readiness, providers, and budgets (Phase 1).",
+      "type": "string",
+      "enum": [
+        "readiness_below_min",
+        "prepare_timeout",
+        "provider_unavailable",
+        "runtime_error",
+        "budget_hard",
+        "command_failed",
+        "not_scheduled"
+      ]
+    },
+    "JobWaitCode": {
+      "title": "JobWaitCode",
+      "description": "Why a queued Job is not leased (docs/specs/job-protocol.md section 7, Wait reasons; proposal). no_runner: no Runner is enrolled for the Environment and Zone; runner_offline: some are, none is online; missing_capability, image_mismatch, excluded: every online Runner in the Zone lacks a required capability, runs another Image than the Job requires, or rejected or failed to prepare an earlier attempt; no_match: they fail for different reasons; clock_offset: every matching Runner's clock offset is above the limit; busy: every matching Runner's heavy slots are taken (transient); ready: a matching Runner has a free slot, and the Job goes at its next Acquire (transient); requirements_invalid: the Job's requirements do not decode.",
+      "type": "string",
+      "enum": [
+        "no_runner",
+        "runner_offline",
+        "missing_capability",
+        "image_mismatch",
+        "excluded",
+        "no_match",
+        "clock_offset",
+        "busy",
+        "ready",
+        "requirements_invalid"
+      ]
+    },
+    "JobEventKind": {
+      "title": "JobEventKind",
+      "description": "Job event kinds: action (a command and how it ended) and log (output, check output, and the Runner's system lines), which every Job type produces; agent (what an agent Job's runtime did: its text, its tool calls and their output, its usage), which the Driver maps from the runtime's stream.",
+      "type": "string",
+      "enum": [
+        "action",
+        "log",
+        "agent"
+      ]
+    },
+    "ArtifactKind": {
+      "title": "ArtifactKind",
+      "description": "Artifact kinds. Phase 0 subset: preflight only.",
+      "type": "string",
+      "enum": [
+        "preflight"
+      ]
+    },
+    "AuthenticatorTypeName": {
+      "title": "AuthenticatorTypeName",
+      "description": "Name of an Authenticator type, <provider>.<name>, or one word for a type no provider owns (ambient). Which names exist is data (the manifests compiled into internal/authn), not an enumeration.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9_]+)*$",
+      "examples": [
+        "k8s.kubeconfig",
+        "http.api_key",
+        "ambient"
+      ]
+    },
+    "HopKindName": {
+      "title": "HopKindName",
+      "description": "Name of a Hop kind: net.*, identity.*, or tool.*. Which names exist is data (the manifests compiled into internal/hopkinds), not schema.",
+      "type": "string",
+      "pattern": "^(net|identity|tool)\\.[a-z0-9_]+$",
+      "examples": [
+        "net.ssh_proxyjump",
+        "tool.binary",
+        "net.private_ca"
+      ]
+    },
+    "Check": {
+      "title": "Check",
+      "description": "A command the Runner runs as a child process, without a shell, and what counts as passing. The command line is split into words first, then each word's placeholders ({params.x}, {secrets.<slot>}, {credential.name}, and the Hop kind's {hop.*}) are rendered, so a value never adds a word; a run that is exactly one {params.x} placeholder is that parameter split into words (a user-supplied check such as http.api_key's). With no expect, exit code 0 passes.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run"
+      ],
+      "properties": {
+        "run": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "expect": {
+          "$ref": "common.json#/$defs/CheckExpect"
+        },
+        "timeout": {
+          "$ref": "common.json#/$defs/Duration"
+        }
+      }
+    },
+    "CheckExpect": {
+      "title": "CheckExpect",
+      "description": "Expected result of a Check (expect: {json: $.Arn, contains: ...}). Every given condition must hold.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "exit_code": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "json": {
+          "description": "A JSONPath into the command's standard output, which must parse as JSON.",
+          "type": "string",
+          "pattern": "^\\$"
+        },
+        "contains": {
+          "description": "A substring of the standard output, or of the value at json when json is given.",
+          "type": "string"
+        }
+      }
+    },
+    "Remedy": {
+      "title": "Remedy",
+      "description": "What fixes a failing check ('built-in remedy (automatable or human)').",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "common.json#/$defs/RemedyKind"
+        },
+        "text": {
+          "description": "What to do, for the owner named in the capability report.",
+          "type": "string",
+          "minLength": 1
+        },
+        "run": {
+          "description": "The command that applies the remedy, for kind automatable.",
+          "type": "string"
+        }
+      }
+    },
+    "RemedyKind": {
+      "title": "RemedyKind",
+      "description": "Whether a remedy can be applied by the platform or needs a human.",
+      "type": "string",
+      "enum": [
+        "automatable",
+        "human"
+      ]
+    },
+    "AuthzCheck": {
+      "title": "AuthzCheck",
+      "description": "An authorization check on a Credential (authz_checks). A read Credential carries at least one expect: deny check against a write action where the provider offers a can-i style query; the Hub enforces that rule, because only it knows whether the provider offers one.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run",
+        "expect"
+      ],
+      "properties": {
+        "run": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "expect": {
+          "$ref": "common.json#/$defs/AuthzExpectation"
+        }
+      }
+    },
+    "AuthzExpectation": {
+      "title": "AuthzExpectation",
+      "description": "Whether an authorization check must be allowed or denied.",
+      "type": "string",
+      "enum": [
+        "allow",
+        "deny"
+      ]
+    },
+    "Sha256": {
+      "title": "Sha256",
+      "description": "A SHA-256 digest in lower-case hex.",
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "LeaseEpoch": {
+      "title": "LeaseEpoch",
+      "description": "Fencing epoch of a Job's lease, incremented on each (re)assignment; the Hub rejects messages with a stale epoch. The first assignment has epoch 1.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "ParamsSchema": {
+      "title": "ParamsSchema",
+      "description": "A JSON Schema (2020-12) for an object of parameters, as a Hop kind or Authenticator type manifest declares it. The Hub compiles it with the same validator as api/schemas.",
+      "type": "object",
+      "additionalProperties": true,
+      "if": {
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "type": {
+            "const": "object"
+          }
+        }
+      },
+      "else": {
+        "not": {}
+      }
+    },
+    "ExtensionContract": {
+      "title": "ExtensionContract",
+      "description": "A versioned extension contract, <point>/v<n>. Every plugin manifest names the contract it implements, and the host (Hub or Runner) speaks exactly that version. Authenticator types (authenticator/v1) and Hop kinds (hopkind/v1) are manifests the Hub validates and the Runner runs checks from; their manifests carry no contract field, and the Hub lists them under these two.",
+      "type": "string",
+      "enum": [
+        "authenticator/v1",
+        "hopkind/v1",
+        "importer/v1",
+        "objectstore/v1",
+        "signer/v1"
+      ]
+    },
+    "ExtensionName": {
+      "title": "ExtensionName",
+      "description": "Name of one implementation of an extension point, unique within its contract: lower case, digits, and '_', with '.' separating a provider prefix where the point uses one. Which names exist is data (the manifests), not schema.",
+      "type": "string",
+      "maxLength": 64,
+      "pattern": "^[a-z0-9][a-z0-9_]*(\\.[a-z0-9_]+)*$",
+      "examples": [
+        "kubeconfig",
+        "s3",
+        "keydir",
+        "claude_code"
+      ]
+    },
+    "ExtensionRef": {
+      "title": "ExtensionRef",
+      "description": "A reference to one extension manifest: its contract, name, and manifest version.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "name",
+        "version"
+      ],
+      "properties": {
+        "contract": {
+          "$ref": "common.json#/$defs/ExtensionContract"
+        },
+        "name": {
+          "$ref": "common.json#/$defs/ExtensionName"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "ImplementationClass": {
+      "title": "ImplementationClass",
+      "description": "How an extension is implemented: builtin is compiled into the Hub or the Runner; exec is a binary pinned by digest, spoken to over stdio or a local socket (on the Hub, from its plugin directory).",
+      "type": "string",
+      "enum": [
+        "builtin",
+        "exec"
+      ]
+    },
+    "Implementation": {
+      "title": "Implementation",
+      "description": "Where an extension's code comes from. exec names the binary (tool) and its SHA-256 (digest); the host refuses a binary whose hash differs. builtin carries neither.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "class"
+      ],
+      "properties": {
+        "class": {
+          "$ref": "common.json#/$defs/ImplementationClass"
+        },
+        "tool": {
+          "description": "exec: the binary's file name (on the Hub, in the plugin directory's bin/).",
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+        },
+        "digest": {
+          "description": "exec: SHA-256 of the binary.",
+          "$ref": "common.json#/$defs/Sha256"
+        }
+      },
+      "if": {
+        "required": [
+          "class"
+        ],
+        "properties": {
+          "class": {
+            "const": "exec"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "tool",
+          "digest"
+        ]
+      },
+      "else": {
+        "properties": {
+          "tool": {
+            "not": {}
+          },
+          "digest": {
+            "not": {}
+          }
+        }
+      }
+    },
+    "ExtensionRequirements": {
+      "title": "ExtensionRequirements",
+      "description": "What an extension needs to run: tools on the Runner image's PATH, network destinations (with {params.x} placeholders; what the operator's network policy must allow, ), Runner capabilities, and, for a Hub-side exec plugin, the environment variables it is given.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "tools": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          }
+        },
+        "network": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "common.json#/$defs/RunnerCapability"
+          }
+        },
+        "env": {
+          "description": "Hub-side exec plugins only: the names of the Hub's environment variables the plugin is started with, copied when set; its environment is otherwise empty. This is how a plugin gets a platform's workload identity (AZURE_FEDERATED_TOKEN_FILE, GOOGLE_APPLICATION_CREDENTIALS, AWS_WEB_IDENTITY_TOKEN_FILE), declared where a reviewer sees it; their values are redacted from the plugin's logs. It is not a security boundary: the plugin runs with the Hub's uid and can read what the Hub's user can read.",
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z_][A-Z0-9_]{0,127}$"
+          },
+          "examples": [
+            [
+              "AWS_WEB_IDENTITY_TOKEN_FILE",
+              "AWS_ROLE_ARN"
+            ]
+          ]
+        }
+      }
+    },
+    "ObjectStoreProviderName": {
+      "title": "ObjectStoreProviderName",
+      "description": "Name of an Object Store provider, the kind of an Object Store: an objectstore/v1 manifest, builtin or a Hub-side exec plugin. Which providers exist is data (the manifests); the builtin is s3, any endpoint that speaks the S3 API with SigV4 pre-signed URLs.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_]{0,31}$",
+      "examples": [
+        "s3",
+        "azure_blob",
+        "gcs_json"
+      ]
+    },
+    "EnrollmentSecret": {
+      "title": "EnrollmentSecret",
+      "description": "The enrollment token as shown once at creation, format version 1: ienr1.<token id>.<secret>.<CA pin>.<Hub protocol URL>. The token id is a ULID; the secret is 32 random bytes in base64url without padding; the CA pin is the lower-case hex SHA-256 of the Hub CA certificate's SubjectPublicKeyInfo (as in kubeadm's --discovery-token-ca-cert-hash and RFC 7469 pins), which the Runner pins before its first connection; the URL is the Hub's protocol base URL, UTF-8 in base64url without padding. The five fields are separated by dots, which none of the encodings produce. A later format changes the ienr prefix (docs/specs/job-protocol.md section 4).",
+      "type": "string",
+      "maxLength": 2048,
+      "pattern": "^ienr1\\.[0-9A-HJKMNP-TV-Z]{26}\\.[A-Za-z0-9_-]{43}\\.[a-f0-9]{64}\\.[A-Za-z0-9_-]{8,}$"
+    },
+    "Ed25519PublicJWK": {
+      "title": "Ed25519PublicJWK",
+      "description": "An Ed25519 public key as a JSON Web Key (RFC 7517; OKP key type and the Ed25519 curve from RFC 8037). Only public members: a JWK with d (the private key) is refused. The Runner's identity key is one (docs/specs/job-protocol.md section 4); its RFC 7638 thumbprint is the cnf.jkt of the Runner's identity JWT and the key DPoP proofs are checked against (RFC 9449).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kty",
+        "crv",
+        "x"
+      ],
+      "properties": {
+        "kty": {
+          "type": "string",
+          "const": "OKP"
+        },
+        "crv": {
+          "type": "string",
+          "const": "Ed25519"
+        },
+        "x": {
+          "description": "base64url (no padding) of the 32-byte public key.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{43}$"
+        },
+        "kid": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "alg": {
+          "type": "string",
+          "const": "EdDSA"
+        },
+        "use": {
+          "type": "string",
+          "const": "sig"
+        }
+      }
+    },
+    "PageToken": {
+      "title": "PageToken",
+      "description": "Opaque cursor for the next page of a list; absent on the last page. Proposal.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024
+    },
+    "RunnerIsolation": {
+      "title": "RunnerIsolation",
+      "description": "How a Runner isolates its Jobs: none, every Job runs as the Runner's user; users, each Job's work and its privileged work run as users of their own; sandbox, users plus the Job's own PID, mount, and IPC namespaces and cgroup.",
+      "type": "string",
+      "enum": ["none", "users", "sandbox"]
+    },
+    "GitRepo": {
+      "title": "GitRepo",
+      "description": "A git repository the Runner checks out for an agent Job: over HTTPS, with the Job's git Credentials when it is private.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url"],
+      "properties": {
+        "url": {"description": "https://<host>/<path>, as git clone takes it.", "type": "string", "maxLength": 512, "pattern": "^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?/[A-Za-z0-9._~/-]+$"},
+        "ref": {"description": "A branch or tag; absent: the repository's default branch.", "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,199}$"},
+        "paths": {"description": "Only these directories are checked out (a sparse checkout, for a monorepo).", "type": "array", "maxItems": 32, "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9_.][A-Za-z0-9_./-]{0,255}$"}}
+      }
+    },
+    "Link": {
+      "title": "Link",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "url"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1, "maxLength": 128},
+        "url": {"type": "string", "maxLength": 2048, "pattern": "^https?://[^\\s]+$"}
+      }
+    },
+    "SecretName": {
+      "title": "SecretName",
+      "description": "Name of a Secret of an Environment: lower case, digits, '-', '_', and '.', up to 128 characters, so an importer's <credential id>-kubeconfig fits.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,127}$",
+      "examples": [
+        "k8s-lab-ro-kubeconfig",
+        "ts-authkey"
+      ]
+    },
+    "SecretSlotName": {
+      "title": "SecretSlotName",
+      "description": "Name of a secret slot an Authenticator type or Hop kind declares (kubeconfig, key, authkey); a Credential or Hop maps each slot to a Secret.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,31}$"
+    },
+    "SecretSlots": {
+      "title": "SecretSlots",
+      "description": "What a Credential or Hop fills its type's or kind's slots with: slot name to the name of a Secret of its Environment (a Hop's Route's Environment). The Hub delivers the values in the Assign; the Runner writes file slots into the Job's working directory and sets env slots in the work's environment.",
+      "type": "object",
+      "propertyNames": {
+        "$ref": "common.json#/$defs/SecretSlotName"
+      },
+      "additionalProperties": {
+        "$ref": "common.json#/$defs/SecretName"
+      },
+      "maxProperties": 16
+    },
+    "SlotDefinition": {
+      "title": "SlotDefinition",
+      "description": "One secret slot of an Authenticator type or Hop kind. as file: the Runner writes the value to <work>/secrets/<owner id>/<path> (mode 0600; path defaults to the slot's name), {secrets.<slot>} is that path, and env, when given, is set to the path (or its directory, with env_dir); as env: the value is set as the variable env, and has no placeholder. env may use {params.x}. join: when several Credentials of a Job set the same variable, their values are joined with it (KUBECONFIG ':'); without join the Hub refuses the Job. optional: a Credential may leave the slot unfilled.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "as"
+      ],
+      "properties": {
+        "as": {
+          "type": "string",
+          "enum": [
+            "file",
+            "env"
+          ]
+        },
+        "env": {
+          "description": "The variable, a template of {params.x}; required for as env.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "path": {
+          "description": "as file: the file's path under the owner's directory, relative and clean (config.json, docker/config.json).",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$",
+          "maxLength": 128
+        },
+        "env_dir": {
+          "description": "as file: env is the file's directory, not the file (DOCKER_CONFIG).",
+          "type": "boolean"
+        },
+        "join": {
+          "description": "The separator several Credentials' values of the same variable are joined with.",
+          "type": "string",
+          "enum": [
+            ":",
+            ","
+          ]
+        },
+        "optional": {
+          "type": "boolean"
+        }
+      },
+      "if": {
+        "properties": {
+          "as": {
+            "const": "env"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "env"
+        ],
+        "properties": {
+          "path": {
+            "not": {}
+          },
+          "env_dir": {
+            "not": {}
+          }
+        }
+      }
+    },
+    "Platform": {
+      "title": "Platform",
+      "description": "An OCI platform an Image is built for.",
+      "type": "string",
+      "enum": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    },
+    "ImageReference": {
+      "title": "ImageReference",
+      "description": "An OCI image reference: a repository, and a tag or a digest or both (an Image's base and its destination repository).",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._/:-]*(@sha256:[a-f0-9]{64})?$",
+      "maxLength": 512,
+      "examples": [
+        "ghcr.io/shebang-labs/twig-nest/runner:0.4.0",
+        "harbor.example.com/sre/twig-nest-runner"
+      ]
+    },
+    "Digest": {
+      "title": "Digest",
+      "description": "An OCI content digest, sha256:<hex>.",
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "EnvName": {
+      "title": "EnvName",
+      "description": "An environment variable's name.",
+      "type": "string",
+      "pattern": "^[A-Z_][A-Z0-9_]{0,127}$"
+    },
+    "BinaryName": {
+      "title": "BinaryName",
+      "description": "An executable's name on PATH.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$"
+    }
+  }
+}

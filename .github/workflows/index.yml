@@ -1,0 +1,49 @@
+# index: after a merge, rewrites catalog.json (the index every Hub reads)
+# and the README's table of Twigs from twigs/, and commits them, so a
+# contributor never edits either. A push by this workflow's token starts no
+# other workflow.
+name: index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "twigs/**"
+      - "README.md"
+      - "schema/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: index
+  cancel-in-progress: false
+
+jobs:
+  index:
+    name: index
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # commit catalog.json and README.md
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check, then index
+        run: |
+          make check
+          make index
+      - name: Commit
+        run: |
+          if git diff --quiet -- catalog.json README.md; then
+            echo "catalog.json and README.md are current"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add catalog.json README.md
+          git commit -m "Index: catalog.json and the README's table"
+          git push origin HEAD:main

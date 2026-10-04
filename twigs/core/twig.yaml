@@ -1,4 +1,4 @@
-# A Twig: api/schemas/manifests/twig.json.
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/manifests/twig.json
 # A bundle: a Hub installs it at start when it is missing.
 twig: twig-nest/twig/v1
 name: core

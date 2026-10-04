@@ -1,4 +1,4 @@
-# A Twig: api/schemas/manifests/twig.json.
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/manifests/twig.json
 twig: twig-nest/twig/v1
 name: tailscale
 version: 1.0.0

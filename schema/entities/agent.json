@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/entities/agent.json",
+  "title": "Agent",
+  "description": "An agent CLI the Runner can run for an agent Job, as data: its binary and arguments, which start it speaking the Agent Client Protocol on stdio, what its ACP adapter needs, the context files it reads, and the variables that hold its model key. Twigs provide them (the Catalog), and an admin adds any other ACP agent.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "binary", "args"],
+  "properties": {
+    "id": {"$ref": "../common.json#/$defs/EntityID"},
+    "rev": {"description": "Current revision number, assigned by the Hub.", "type": "integer", "minimum": 1, "readOnly": true},
+    "summary": {"type": "string", "maxLength": 256},
+    "binary": {"description": "The executable the Runner starts, found on PATH; agent Jobs require it (requires.binaries).", "$ref": "../common.json#/$defs/BinaryName"},
+    "tool": {"description": "The Tool that installs the binary, named when a Runner lacks it.", "$ref": "../common.json#/$defs/EntityID"},
+    "args": {
+      "description": "Argument templates after the binary that make it speak ACP on stdio (opencode: [acp]), without a shell (internal/tmpl): {model}, {budget_usd}, {system_prompt}, and {job.dir}. An element written ?--flag={x} is dropped when x is unset.",
+      "type": "array", "maxItems": 64,
+      "items": {"type": "string", "minLength": 1, "maxLength": 1024}
+    },
+    "context_files": {
+      "description": "File names the agent reads from its working directory besides AGENTS.md; each is a link to the brief.",
+      "type": "array", "uniqueItems": true, "maxItems": 8,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$"}
+    },
+    "key_env": {
+      "description": "The variables that hold its model key. A Credential that only sets one of them is the agent's key: the start check leaves its Target out, and the Runner's own value is redacted.",
+      "type": "array", "uniqueItems": true, "maxItems": 16,
+      "items": {"$ref": "../common.json#/$defs/EnvName"}
+    },
+    "pass_env": {
+      "description": "Variables of the Runner's environment the agent gets when set (a gateway URL, a cloud provider switch); a Credential that sets one wins.",
+      "type": "array", "uniqueItems": true, "maxItems": 32,
+      "items": {"$ref": "../common.json#/$defs/EnvName"}
+    },
+    "env": {
+      "description": "Fixed variables the agent starts with (an update check turned off).",
+      "type": "object", "maxProperties": 32,
+      "propertyNames": {"$ref": "../common.json#/$defs/EnvName"},
+      "additionalProperties": {"type": "string", "maxLength": 1024}
+    },
+    "resume": {
+      "description": "How the agent picks a session up again after its Runner restarted mid-Job: state is the directory, relative to the Job's, the agent keeps its sessions in, which the Runner copies to its state directory while the Job runs and puts back on the resumed attempt, where ACP's session/resume (or session/load) picks the session up. Without it, a Job its Runner lost ends lost.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state"],
+      "properties": {
+        "state": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$"}
+      }
+    },
+    "acp": {
+      "description": "What the Runner tells the agent beyond ACP's defaults. auth_method is the ACP authenticate method the Runner calls after initialize (its key comes from the environment, as key_env says); session_meta is sent as _meta on session/new, session/resume, and session/load, its strings templates of {system_prompt}, {model}, {budget_usd}, and {job.dir} (a string that is one placeholder of a number becomes that number); session_config sets session config options by id (mode, for instance) once the session is open. The Job's model is set through the option of category model.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "auth_method": {"type": "string", "minLength": 1, "maxLength": 64},
+        "session_meta": {"type": "object"},
+        "session_config": {
+          "type": "object",
+          "maxProperties": 16,
+          "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 128}
+        }
+      }
+    },
+    "version_command": {"description": "Prints the agent's version; default '<binary> --version'. Split into words, no shell.", "type": "string", "maxLength": 256}
+  }
+}

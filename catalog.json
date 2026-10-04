@@ -17,7 +17,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ambient/twig.yaml",
-      "sha256": "366517cfb35d9dc03d3928e209d5e31f6ff73b278cfa599668fc7ba5794d3d5c"
+      "sha256": "4f8bd0545eeee174351fe0a04b7430fe636b1be4f70fb14e3385431606acb3ae"
     },
     {
       "name": "argocd",
@@ -34,7 +34,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/argocd/twig.yaml",
-      "sha256": "4cbccf7def37e7da45781d33f77e628df42feee9f8208a6b56290d5db5230516"
+      "sha256": "721a4a2f27c3ec1f34c7c898a9255313a2718174f7d38f942a54b0e1359d8924"
     },
     {
       "name": "aws",
@@ -54,7 +54,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/aws/twig.yaml",
-      "sha256": "e2a578605a28e22d85b72c847849b0092a53b6f755d3b787c81fa9f6d11f9a79"
+      "sha256": "115d4da68c21b4719db22241cb036b4577f36ce7d73864a9fce9532e2ae5fd9a"
     },
     {
       "name": "azure",
@@ -71,7 +71,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/azure/twig.yaml",
-      "sha256": "8deb7ca4c03a8a971f0acdda47acc1f3b3fbdd80c8ee8a0ff4c383c03f150fb0"
+      "sha256": "2aa38a32d83bfc2e161a945cd99e37a7bc630832cae805b8f0fb68cfd7daedc4"
     },
     {
       "name": "buildkit",
@@ -87,7 +87,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/buildkit/twig.yaml",
-      "sha256": "7d693d7beeaf67ff2b70c923480dcb76bcd8d5c83359040033f8d5be5a5ec302"
+      "sha256": "c614f399e64981f45a155b70dc215e487f6b5afaf456e48696e8fe0491ec13c4"
     },
     {
       "name": "claude-code",
@@ -108,7 +108,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/claude-code/twig.yaml",
-      "sha256": "231037e09608cbde6341e98ab83b43f540228d9424ed6e4157fb9e89fab93d03"
+      "sha256": "d87c3a2eda0062f3949f605b363cd12be029d65b39ac983f9486700949e7686c"
     },
     {
       "name": "codex",
@@ -129,7 +129,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/codex/twig.yaml",
-      "sha256": "ab502f38b54c8e18168ffe1b73dd53fd6996c8c80347df2994a3186eb5a0060d"
+      "sha256": "23907270d8fc5b856d94bcfbf68931274e969e5be62158fcdd20bdd12d8ae722"
     },
     {
       "name": "core",
@@ -151,7 +151,7 @@
         "claude-code"
       ],
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/core/twig.yaml",
-      "sha256": "81942ab59120aef48107c21b330f6c8c071d10f8ff5a78993e81337085cc6112"
+      "sha256": "82d5d7656093bac873280da9176db1489324150cf930b1d1250069188370fe14"
     },
     {
       "name": "gcp",
@@ -171,7 +171,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/gcp/twig.yaml",
-      "sha256": "5c6655eef3fd7b58989edf9279ce5d2829bf2df8e741ee79f2f7c8e05e6943f4"
+      "sha256": "bc953892b0052158fc2f0a5dec85b8829cc867422376ccda2e9c00f1fab3a9d6"
     },
     {
       "name": "github",
@@ -191,7 +191,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/github/twig.yaml",
-      "sha256": "3a9e915ce500ab18718bc5804173fc2a757f3c790142cab3374748efc64ad0f2"
+      "sha256": "0b0ef80c670b07ace257a088a55379c21e7a3d1e65327e780ed6b85ec03f847a"
     },
     {
       "name": "gitlab",
@@ -208,7 +208,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/gitlab/twig.yaml",
-      "sha256": "73100e594a225599994abbfe8d48a50ad030838cbe08fdf79aa49a60e5d9cec1"
+      "sha256": "c18f2920200c51cb63b7f8ceaad268de0051ceb050039606d5501945df58a540"
     },
     {
       "name": "http",
@@ -224,7 +224,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/http/twig.yaml",
-      "sha256": "26f42cb9bdfd46c40b99784cdcce8d3386b17a740ca86c62fb9792026f1dd7b6"
+      "sha256": "67291e0c103db3d2bcb4a24d351c9a55a963f9c75f4fe89dff1a5fdc603656f7"
     },
     {
       "name": "kubernetes",
@@ -244,7 +244,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/kubernetes/twig.yaml",
-      "sha256": "eec08e50ade7b4c9b5aa16481340c0a082797168a7d20280c95450767bdac4bb"
+      "sha256": "f45ca113f7365d185a32ee69c57ac9a56b5ae9727f25a8568e25289408061c26"
     },
     {
       "name": "logcli",
@@ -261,7 +261,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/logcli/twig.yaml",
-      "sha256": "533a9ea76cdeb36bd04dfe2d68defb2e381549a8de74790d3b97ac1e3497ac69"
+      "sha256": "094ab7d5297f6d366da0dbc44b71909a3af3c9a7dc56f573b2d87527d41f544b"
     },
     {
       "name": "memcached",
@@ -277,7 +277,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/memcached/twig.yaml",
-      "sha256": "46c09f83a826561959ed3cc8b3d5d8d718a443438e36e005be2a6c604ea71657"
+      "sha256": "8b1224f0a455d67d245015774e552be0085868de0faf5b53c31d476ec9e49c09"
     },
     {
       "name": "mysql",
@@ -296,7 +296,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/mysql/twig.yaml",
-      "sha256": "bfeaf31a3cd9b3faed2ad2d6d95e19b8076165d69028679b3a1d9bad76e96f09"
+      "sha256": "3dc5db6c05097d305c5f1e53b4ec3d8098b3c01ee10ff4c4ec1464f4c73a04a3"
     },
     {
       "name": "network",
@@ -316,7 +316,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/network/twig.yaml",
-      "sha256": "42296d351f3863f2d68b1dacac8b790fb4e320a367c84a1842289c648efed0f3"
+      "sha256": "5e6f0f07dbf1eda35c30b1bba787d1389e13e8c7cd4ff1593c9d5f31df088bf7"
     },
     {
       "name": "opencode",
@@ -336,7 +336,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/opencode/twig.yaml",
-      "sha256": "8a912b9817cb1fc649cb262d6230300314f97b88c8d2c0ab43d9778742d2bd4e"
+      "sha256": "8057a1556be9e103cbb3a7788682c970667efd2e237beef29244a1b3abe93eb9"
     },
     {
       "name": "ops-essentials",
@@ -354,7 +354,7 @@
         "ssh"
       ],
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ops-essentials/twig.yaml",
-      "sha256": "877e9e6086fe7130bdec3cf454cd1be4dd98e2023434ed536351ef29f1220cd0"
+      "sha256": "5b7a203b636ed7d57bb225e918430c8f89a414943f9aa551d57c2950b11a2b7d"
     },
     {
       "name": "postgres",
@@ -373,7 +373,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/postgres/twig.yaml",
-      "sha256": "48641f271f7d545b23035d896fd87e530bf90ced172b9178082abf8b27611ca0"
+      "sha256": "136211e819914a8392920a93fcf43ab025bb84e1209af12d2ba0451f2ae489c6"
     },
     {
       "name": "redis",
@@ -393,7 +393,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/redis/twig.yaml",
-      "sha256": "fdfcfc6b2f80f6c600af0adaa9487d6776a48b60093ff0bdf4e37090dba814b6"
+      "sha256": "bb2c02b994702db413669a5c6d41eab7a3c611fa21e5e00b616013cd021243a3"
     },
     {
       "name": "registry",
@@ -409,7 +409,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/registry/twig.yaml",
-      "sha256": "596a4e106b4d1aa3867f73903edd2964675d8610ba95a0bb3f69fb83c1cebb95"
+      "sha256": "415a5fd07773effb59eb404e4783587a5fa5bea05fc8ddb555c46511f26cdb43"
     },
     {
       "name": "ssh",
@@ -425,7 +425,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ssh/twig.yaml",
-      "sha256": "ced0c390df46789b479da6b0472e55371d4bb8781d0ede6e5214738d961dab42"
+      "sha256": "64065c10bfdd74d8eaa09ab4051742809d85f2cc8c43b2f4cea9e65e982d91c2"
     },
     {
       "name": "tailscale",
@@ -445,7 +445,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/tailscale/twig.yaml",
-      "sha256": "3229c2fcc93dc83582f4da7e733d79ee7029ccfd487951799efd2786c5f860bb"
+      "sha256": "e0836e4b0642355f4b8c28f79a43249f10872bf5661ad7ede382d9dd09eef04b"
     },
     {
       "name": "terraform",
@@ -461,7 +461,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/terraform/twig.yaml",
-      "sha256": "06780772cd6c318103b0d86fb7eb067beab0bef10607b8e3baf084848bbb851c"
+      "sha256": "50a7ce95bf3c88ec8372c926dfd6001c3cd3dda09c7a9bef33d3d10df4525807"
     },
     {
       "name": "vault",
@@ -477,7 +477,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/vault/twig.yaml",
-      "sha256": "cb931b1895e563235ad75ce7911e307ff8be990c919803b5f10116e1e653b9b0"
+      "sha256": "723376d8204bb37b12d9ef401e476097c17cba758582df3a965ecaffb1ed67eb"
     },
     {
       "name": "wireguard",
@@ -498,7 +498,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/wireguard/twig.yaml",
-      "sha256": "f22553bbea89e830fbbf719f88c42767b378a4ede252c7f01a1c57f4c77e2fd8"
+      "sha256": "f3f4dff56a76849079db3b3bd6af0ba43b3054292ee7efa634d92a01b63069f7"
     }
   ]
 }

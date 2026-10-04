@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/manifests/hop-kind.json",
+  "title": "HopKind",
+  "description": "A manifest for a kind of Hop, like an Authenticator type: a parameter schema, a built-in check with an expected result, a remedy, the destinations it needs, and the environment it sets. A kind that joins a network for a Job also declares secret slots, files, up steps, a ready check, and down commands: the Runner starts up as child processes in the Job's process group, in the Hop's directory under the Job's working directory, with the slots written there, retries ready until it passes, exports env to the checks after it and to the work, and stops everything at finalize. The builtin kinds are compiled into internal/hopkinds and read-only through the API.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["type", "version", "summary", "params", "preflight", "remedy", "interactive"],
+  "properties": {
+    "type": {"$ref": "../common.json#/$defs/HopKindName"},
+    "version": {"description": "Incremented on every change a Hop's params or checks could notice.", "type": "integer", "minimum": 1},
+    "summary": {"type": "string", "minLength": 1, "maxLength": 256},
+    "params": {"description": "JSON Schema (2020-12) for Hop.params. Never secret.", "$ref": "../common.json#/$defs/ParamsSchema"},
+    "preflight": {"description": "The built-in check, run after up and ready when the kind has them.", "$ref": "../common.json#/$defs/Check"},
+    "remedy": {"$ref": "../common.json#/$defs/Remedy"},
+    "interactive": {"description": "A human must cross it.", "type": "boolean"},
+    "requires_tools": {"description": "Binaries the checks and up need on the Runner image's PATH (a Tool of the Image provides them).", "type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*$"}},
+    "requires_network": {"description": "Destinations the Hop needs, as host or host:port templates of its params; a host without a port means 443. What the operator's network policy must allow; nothing enforces it.", "type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1, "maxLength": 300}},
+    "requires_capabilities": {"description": "Runner capabilities the Hop needs (net_admin for a kernel-mode network): the Hub adds them to the requirements of every Job on a Route through the Hop.", "type": "array", "uniqueItems": true, "items": {"$ref": "../common.json#/$defs/RunnerCapability"}},
+    "env": {"description": "Variables set for the checks after the Hop and for the work of a Job whose Route crosses it, as templates (see placeholders). net.private_ca sets the CA trust per runtime (SSL_CERT_FILE, REQUESTS_CA_BUNDLE, GIT_SSL_CAINFO, CURL_CA_BUNDLE, NODE_EXTRA_CA_CERTS); a network Hop exports its proxies (ALL_PROXY, HTTPS_PROXY). When two Hops of a Job export the same variable, the first on the Job's Routes wins.", "type": "object", "maxProperties": 16, "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 300}, "propertyNames": {"pattern": "^[A-Z_][A-Z0-9_]{0,63}$"}},
+    "secrets": {"description": "The slots a Hop of this kind fills with Secrets of its Route's Environment; file slots are written in the Hop's directory.", "type": "object", "maxProperties": 8, "propertyNames": {"$ref": "../common.json#/$defs/SecretSlotName"}, "additionalProperties": {"$ref": "../common.json#/$defs/SlotDefinition"}},
+    "files": {"description": "Non-secret files the client reads, rendered from templates into the Hop's directory before up runs (mode 0600); {file.<name>} is a file's path.", "type": "array", "maxItems": 8, "items": {"$ref": "hop-kind.json#/$defs/HopFile"}},
+    "up": {"description": "The steps that join the network, in order. A step runs to completion within its timeout and must succeed, unless it is a daemon (the client, such as tailscaled), which is started and left running until finalize; a daemon that ends before ready passes fails the Hop at once.", "type": "array", "maxItems": 8, "items": {"$ref": "hop-kind.json#/$defs/HopStep"}},
+    "ready": {"description": "Run until it passes, within its timeout (default 30 s), before anything uses the Hop; required with up.", "$ref": "../common.json#/$defs/Check"},
+    "down": {"description": "Commands run at finalize before the daemons are stopped (a logout), each within 10 s.", "type": "array", "maxItems": 8, "items": {"type": "string", "minLength": 1, "maxLength": 4096}},
+    "variants": {"$ref": "hop-kind.json#/$defs/HopVariants"}
+  },
+  "dependentRequired": {"up": ["ready"]},
+  "$defs": {
+    "HopStep": {
+      "title": "HopStep",
+      "description": "One up step: split into words without a shell and rendered word by word, run in the Hop's directory with the Job's environment.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run"],
+      "properties": {
+        "run": {"type": "string", "minLength": 1, "maxLength": 4096},
+        "daemon": {"description": "A long-running process: started and not waited for; stopped at finalize (SIGTERM to its process group, then SIGKILL after 5 s).", "type": "boolean", "default": false},
+        "timeout": {"description": "A step that is not a daemon must finish within it (default 60s).", "$ref": "../common.json#/$defs/Duration"},
+        "stdin": {"description": "A file slot whose value is written to the step's standard input (and closed), for a client that reads a key there.", "$ref": "../common.json#/$defs/SecretSlotName"}
+      }
+    },
+    "HopFile": {
+      "title": "HopFile",
+      "description": "One non-secret file of a Hop's client, named name ({file.name}), with content rendered from a template.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "content"],
+      "properties": {
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$"},
+        "content": {"type": "string", "minLength": 1, "maxLength": 65536}
+      }
+    },
+    "HopVariants": {
+      "title": "HopVariants",
+      "description": "Per-value overrides chosen by one param (net.tailscale's mode: userspace or kernel; net.ssh_proxyjump's socks). The param is a string or boolean enum in params with a default; the chosen value's fields replace the manifest's.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["by", "values"],
+      "properties": {
+        "by": {"type": "string", "pattern": "^[a-z_][a-z0-9_]*$"},
+        "values": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "hop-kind.json#/$defs/HopVariant"}}
+      }
+    },
+    "HopVariant": {
+      "title": "HopVariant",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"type": "string", "maxLength": 256},
+        "preflight": {"$ref": "../common.json#/$defs/Check"},
+        "requires_tools": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9][a-z0-9_.-]*$"}},
+        "requires_capabilities": {"type": "array", "uniqueItems": true, "items": {"$ref": "../common.json#/$defs/RunnerCapability"}},
+        "env": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 300}, "propertyNames": {"pattern": "^[A-Z_][A-Z0-9_]{0,63}$"}},
+        "secrets": {"type": "object", "maxProperties": 8, "propertyNames": {"$ref": "../common.json#/$defs/SecretSlotName"}, "additionalProperties": {"$ref": "../common.json#/$defs/SlotDefinition"}},
+        "files": {"type": "array", "maxItems": 8, "items": {"$ref": "hop-kind.json#/$defs/HopFile"}},
+        "up": {"type": "array", "maxItems": 8, "items": {"$ref": "hop-kind.json#/$defs/HopStep"}},
+        "ready": {"$ref": "../common.json#/$defs/Check"},
+        "down": {"type": "array", "maxItems": 8, "items": {"type": "string", "minLength": 1, "maxLength": 4096}}
+      }
+    }
+  }
+}
