@@ -1,0 +1,30 @@
+# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: logcli
+version: 1.0.0
+summary: Grafana Loki's logcli, to query logs with LogQL
+publisher: Twig Nest project
+homepage: https://grafana.com/docs/loki/latest/query/logcli/
+license: AGPL-3.0
+tags: [logs, grafana]
+tools:
+- id: logcli
+  version: 3.7.8
+  summary: The Loki query CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) sha=44b790601963193df9cc496f0c8d6782e5d28c90754ca7a697e3f5683dad2588 ;; \
+          arm64) sha=830b431e1b28ee0291a0f3827484cc481e06849dd6e6f3dc5e984e34d5a645a7 ;; \
+          *) echo "logcli: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/logcli.zip "https://github.com/grafana/loki/releases/download/v3.7.8/logcli-linux-${TARGETARCH}.zip"; \
+        echo "${sha}  /tmp/logcli.zip" | sha256sum --check --strict -; \
+        unzip -q /tmp/logcli.zip -d /tmp/logcli.d; \
+        install -m 0755 "/tmp/logcli.d/logcli-linux-${TARGETARCH}" /usr/local/bin/logcli; \
+        rm -rf /tmp/logcli.zip /tmp/logcli.d
+  provides:
+  - binary: logcli
+    version_command: logcli --version
+  notes: 'AGPL-3.0. Checksums: the release''s SHA256SUMS. With an http.api_key Credential setting LOKI_ADDR and LOKI_BEARER_TOKEN (or LOKI_USERNAME and LOKI_PASSWORD), logcli query works as is.'

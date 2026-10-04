@@ -1,0 +1,66 @@
+# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: ssh
+version: 1.1.0
+summary: SSH access to hosts with a private key and pinned host keys
+publisher: Twig Nest project
+homepage: https://www.openssh.com/manual.html
+license: Apache-2.0
+tags: [host]
+authenticator_types:
+- authenticator_type: ssh.key
+  version: 3
+  provider: ssh
+  summary: An SSH private key and the host's known_hosts lines, for ssh and scp to one host
+  interactive: false
+  secrets:
+    key:
+      as: file
+      path: id_key
+      env: SSH_KEY_FILE
+    known_hosts:
+      as: file
+      path: known_hosts
+      env: SSH_KNOWN_HOSTS
+  env:
+    SSH_HOST: '{params.host}'
+    SSH_PORT: '{params.port}'
+    SSH_USER: '{params.user}'
+  params:
+    type: object
+    additionalProperties: false
+    required: [host, port, user]
+    properties:
+      host:
+        type: string
+        pattern: '^[A-Za-z0-9.:-]{1,253}$'
+        description: The host's name or address, as the Runner reaches it.
+      port:
+        type: string
+        pattern: '^[0-9]{1,5}$'
+        description: The SSH port, 22 for most hosts.
+      user:
+        type: string
+        pattern: '^[a-z_][a-z0-9_.-]{0,31}$'
+        description: The user to log in as.
+  # ssh comes with the runner image (openssh-client); no Tool installs it.
+  # It reads ~/.ssh from the user's passwd home, not the Job's HOME, so the
+  # key and known_hosts are always passed as flags.
+  requires_tools: [ssh]
+  usage: ssh -i "$SSH_KEY_FILE" -o UserKnownHostsFile="$SSH_KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" <command>
+  guide: |
+    Every ssh call names the key, the pinned host keys, and the port: use the form above as it is, with the variables, which are set. Nothing else is configured: no alias such as the Target's name resolves (the host is {params.host}), ssh-agent holds no key, and ssh cannot write to its home directory, so it never learns a host key on its own.
+
+    - One command: `ssh <the options above> "$SSH_USER@$SSH_HOST" 'df -h /'`.
+    - Several commands: send a script on standard input with a quoted heredoc, which keeps your quoting as it is: `ssh <the options above> "$SSH_USER@$SSH_HOST" 'bash -s' <<'EOF'`, the lines, then `EOF`. Nested quotes in a one-line command break easily; the heredoc does not.
+    - Filter on the host (`du -xh -d1 / | sort -rh | head -20`, `journalctl --since -1h | tail -200`): long output is cut.
+    - `Host key verification failed`: the host's key is not the one in the Credential's known_hosts. Stop and tell the people watching; never pass `StrictHostKeyChecking=no` or `accept-new`.
+    - `Permission denied (publickey)`: the key is not authorized for {params.user}. Do not retry or try another user.
+    - ssh opens a raw TCP connection and does not use HTTP proxy variables: the host must be reachable from the Runner itself, or through a Hop in kernel mode.
+  preflight:
+    authn:
+      run: ssh -i {secrets.key} -o UserKnownHostsFile={secrets.known_hosts} -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=10 -p {params.port} {params.user}@{params.host} id -un
+      expect:
+        exit_code: 0
+      timeout: 20s
+  permissions_hint: 'Log in as a user that can only read (a dedicated user in the adm or systemd-journal group, or a forced command in authorized_keys); root, or any user with sudo, is write access. Put the private key and the host''s ssh-keyscan lines (ssh-keyscan HOST) into Secrets of the Environment.'

@@ -1,0 +1,15 @@
+# A Twig (ADR-0022): api/schemas/manifests/twig.json. A bundle: it only
+# requires other Twigs, which a Hub installs with it from its Catalog.
+twig: twig-nest/twig/v1
+name: ops-essentials
+version: 1.0.0
+summary: The Twigs most teams start with, installed in one go
+publisher: Twig Nest project
+license: Apache-2.0
+tags: [bundle]
+requires:
+- name: argocd
+- name: logcli
+- name: mysql
+- name: ssh
+  version: 1.1.0

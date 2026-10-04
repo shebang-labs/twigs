@@ -1,0 +1,29 @@
+# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: argocd
+version: 1.0.0
+summary: The Argo CD CLI, to read Applications' sync and health state
+publisher: Twig Nest project
+homepage: https://argo-cd.readthedocs.io/en/stable/user-guide/commands/argocd/
+license: Apache-2.0
+tags: [kubernetes, gitops]
+tools:
+- id: argocd
+  version: 3.5.3
+  summary: The Argo CD CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) sha=b860f73f57cbddd993cd446f5236d797c1b1ac8554857b2683d2669f17e765b4 ;; \
+          arm64) sha=bb37e5d62df897ea1610f7c647fdc78657a0e3a928dc21893faf7bf66a4646cb ;; \
+          *) echo "argocd: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/argocd.dl "https://github.com/argoproj/argo-cd/releases/download/v3.5.3/argocd-linux-${TARGETARCH}"; \
+        echo "${sha}  /tmp/argocd.dl" | sha256sum --check --strict -; \
+        install -m 0755 /tmp/argocd.dl /usr/local/bin/argocd; \
+        rm -f /tmp/argocd.dl
+  provides:
+  - binary: argocd
+    version_command: argocd version --client --short
+  notes: 'Apache-2.0. Checksums: the release''s cli_checksums.txt. With a kubeconfig Credential, argocd --core reads Applications through the Kubernetes API, no Argo CD token needed.'

@@ -1,0 +1,114 @@
+{
+  "catalog": "twig-nest/catalog/v1",
+  "name": "Twigs",
+  "homepage": "https://github.com/shebang-labs/twigs",
+  "twigs": [
+    {
+      "name": "argocd",
+      "version": "1.0.0",
+      "summary": "The Argo CD CLI, to read Applications' sync and health state",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "kubernetes",
+        "gitops"
+      ],
+      "provides": {
+        "tools": [
+          "argocd"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/argocd/twig.yaml",
+      "sha256": "3b96fb0d281feafeeb129314a35b6d4c35c374d084247882c52b11e611e8011a"
+    },
+    {
+      "name": "logcli",
+      "version": "1.0.0",
+      "summary": "Grafana Loki's logcli, to query logs with LogQL",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "logs",
+        "grafana"
+      ],
+      "provides": {
+        "tools": [
+          "logcli"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/logcli/twig.yaml",
+      "sha256": "377095a50141644f4941fe545b048b70836905b25ccce14b6aec7c1b9b64b3a2"
+    },
+    {
+      "name": "mysql",
+      "version": "1.0.0",
+      "summary": "MySQL and MariaDB access, read-only, with the mariadb client",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "database"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "mysql.password"
+        ],
+        "tools": [
+          "mariadb-client"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/mysql/twig.yaml",
+      "sha256": "f0aef00baa01f046aa6ca410c61529f9ea24534905f9bfb104c3be2043d8bbe8"
+    },
+    {
+      "name": "opencode",
+      "version": "1.1.0",
+      "summary": "OpenCode as an investigating agent, driven over the Agent Client Protocol (any model provider)",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "agent",
+        "acp"
+      ],
+      "provides": {
+        "agents": [
+          "opencode"
+        ],
+        "tools": [
+          "opencode"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/opencode/twig.yaml",
+      "sha256": "78b52d8689346195dc3a3f4d6fbd606eb00a7952208106f538b3aa104e616966"
+    },
+    {
+      "name": "ops-essentials",
+      "version": "1.0.0",
+      "summary": "The Twigs most teams start with, installed in one go",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "bundle"
+      ],
+      "provides": {},
+      "requires": [
+        "argocd",
+        "logcli",
+        "mysql",
+        "ssh"
+      ],
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ops-essentials/twig.yaml",
+      "sha256": "6a3b2d996cbcba985ea1eea2a1cf5b8622ac9abd8da7305c345a2d09febabb51"
+    },
+    {
+      "name": "ssh",
+      "version": "1.1.0",
+      "summary": "SSH access to hosts with a private key and pinned host keys",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "host"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "ssh.key"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ssh/twig.yaml",
+      "sha256": "e800a7c69791ad5e7f021b4dd25c6bd4c7e71c5aa4f96968c15603d9713f6e66"
+    }
+  ]
+}

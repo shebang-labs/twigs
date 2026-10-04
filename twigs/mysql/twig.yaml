@@ -1,0 +1,62 @@
+# A Twig (ADR-0022): api/schemas/manifests/twig.json.
+twig: twig-nest/twig/v1
+name: mysql
+version: 1.0.0
+summary: MySQL and MariaDB access, read-only, with the mariadb client
+publisher: Twig Nest project
+homepage: https://mariadb.com/kb/en/mariadb-command-line-client/
+license: Apache-2.0
+tags: [database]
+authenticator_types:
+- authenticator_type: mysql.password
+  version: 1
+  provider: mysql
+  summary: 'A MySQL or MariaDB user''s password: the client reads it from MYSQL_PWD'
+  interactive: false
+  secrets:
+    password:
+      as: env
+      env: MYSQL_PWD
+  env:
+    MYSQL_HOST: '{params.host}'
+    MYSQL_TCP_PORT: '{params.port}'
+    MYSQL_USER: '{params.user}'
+  params:
+    type: object
+    additionalProperties: false
+    required: [host, port, user]
+    properties:
+      host:
+        type: string
+        pattern: '^[A-Za-z0-9.-]{1,253}$'
+        description: The server's host name or address, as the Runner reaches it.
+      port:
+        type: string
+        pattern: '^[0-9]{1,5}$'
+        description: The port, 3306 for most servers.
+      user:
+        type: string
+        pattern: '^[A-Za-z0-9_.@-]{1,80}$'
+        description: The user to log in as.
+  requires_tools: [mariadb-client]
+  usage: mariadb -h "$MYSQL_HOST" -P "$MYSQL_TCP_PORT" -u "$MYSQL_USER" (the password is set)
+  preflight:
+    authn:
+      run: mariadb -h {params.host} -P {params.port} -u {params.user} -N -e 'SELECT 1'
+      expect:
+        contains: '1'
+      timeout: 15s
+  permissions_hint: 'A user with SELECT, PROCESS, and SHOW VIEW only (GRANT SELECT, PROCESS, SHOW VIEW ON *.* TO ...); never one with write grants below act. The client opens raw TCP: across a Tailscale or WireGuard Hop the Hop needs kernel mode.'
+tools:
+- id: mariadb-client
+  version: 11.8.6
+  summary: The MariaDB client (mariadb, mariadb-dump), which speaks to MySQL too
+  install: |
+    RUN set -eu; \
+        apt-get update; \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends mariadb-client=1:11.8.6-0+deb13u1; \
+        rm -rf /var/lib/apt/lists/*
+  provides:
+  - binary: mariadb
+    version_command: mariadb --version
+  notes: 'GPL-2.0. A Debian package at the pinned version, from the base''s snapshot (apt checks it against the snapshot''s signed index).'
