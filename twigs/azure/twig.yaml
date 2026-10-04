@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: azure
+version: 1.0.0
+summary: The Azure CLI
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- cloud
+- azure
+tools:
+- id: az
+  version: 2.90.0
+  summary: The Azure CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://packages.microsoft.com/repos/azure-cli/pool/main/a/azure-cli/azure-cli_2.90.0-1~bookworm_amd64.deb sha=59ed6fb084cf402a09d0f1c73c89dc05eb87f6d240bb0e07d1cd29a74f06b2c8 ;; \
+          arm64) url=https://packages.microsoft.com/repos/azure-cli/pool/main/a/azure-cli/azure-cli_2.90.0-1~bookworm_arm64.deb sha=9ebc5ad1932647b7c14e51e015c57ec9dcefb815101e994d732683b644de88f3 ;; \
+          *) echo "az: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/azure-cli.deb "${url}"; \
+        echo "${sha}  /tmp/azure-cli.deb" | sha256sum --check --strict -; \
+        apt-get update; \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends /tmp/azure-cli.deb; \
+        rm -rf /tmp/azure-cli.deb /var/lib/apt/lists/*
+    ENV AZURE_CORE_COLLECT_TELEMETRY=false
+  provides:
+  - binary: az
+    version_command: az version --output tsv --query azure-cli
+  notes: 'MIT. Checksums: the SHA256 fields of the signed Packages index at packages.microsoft.com/repos/azure-cli/dists/bookworm. Its dependencies come from the base''s Debian snapshot. Telemetry off.'

@@ -1,0 +1,103 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: tailscale
+version: 1.0.0
+summary: 'Join a tailnet for a Job: the Tailscale Hop kind and its CLI'
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- network
+- vpn
+hop_kinds:
+- type: net.tailscale
+  version: 1
+  summary: Join a tailnet for the Job with an auth key, as an ephemeral node named after it
+  params:
+    type: object
+    additionalProperties: false
+    properties:
+      mode:
+        type: string
+        enum:
+        - userspace
+        - kernel
+        default: userspace
+        description: 'userspace: tailscaled without privileges, reached through the exported proxies (HTTP tools: kubectl, aws, gh, curl); kernel: a real interface for every tool, which needs a Runner with the net_admin capability.'
+      login_server:
+        type: string
+        pattern: ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?(/[A-Za-z0-9._/-]*)?$
+        description: A control server other than Tailscale's (Headscale).
+  preflight:
+    run: tailscale --socket={hop.dir}/tailscaled.sock status --peers=false
+    expect:
+      exit_code: 0
+    timeout: 10s
+  remedy:
+    kind: human
+    text: Give the Hop's Secret an ephemeral, pre-authorized, tagged auth key that is still valid, and let the tailnet's ACLs reach the Targets behind it.
+  interactive: false
+  requires_tools:
+  - tailscale
+  - tailscaled
+  secrets:
+    authkey:
+      as: file
+      path: authkey
+  up:
+  - run: 'tailscaled --tun=userspace-networking --state=mem: --statedir={hop.dir} --socket={hop.dir}/tailscaled.sock --port=0 --socks5-server=127.0.0.1:{hop.port1} --outbound-http-proxy-listen=127.0.0.1:{hop.port2}'
+    daemon: true
+  - run: tailscale --socket={hop.dir}/tailscaled.sock up --auth-key=file:{secrets.authkey} --hostname={job.host} --accept-routes ?--login-server={params.login_server} --timeout=60s
+    timeout: 90s
+  ready:
+    run: tailscale --socket={hop.dir}/tailscaled.sock status --peers=false
+    expect:
+      exit_code: 0
+    timeout: 60s
+  down:
+  - tailscale --socket={hop.dir}/tailscaled.sock logout
+  env:
+    ALL_PROXY: socks5h://127.0.0.1:{hop.port1}
+    HTTPS_PROXY: http://127.0.0.1:{hop.port2}
+    HTTP_PROXY: http://127.0.0.1:{hop.port2}
+    NO_PROXY: localhost,127.0.0.1,::1
+    TS_SOCKET: '{hop.dir}/tailscaled.sock'
+  variants:
+    by: mode
+    values:
+      userspace: {}
+      kernel:
+        summary: Join a tailnet for the Job with a real interface (needs net_admin)
+        requires_capabilities:
+        - net_admin
+        up:
+        - run: 'tailscaled --state=mem: --statedir={hop.dir} --socket={hop.dir}/tailscaled.sock --port=0 --tun={hop.name}'
+          daemon: true
+        - run: tailscale --socket={hop.dir}/tailscaled.sock up --auth-key=file:{secrets.authkey} --hostname={job.host} --accept-routes --accept-dns=false ?--login-server={params.login_server} --timeout=60s
+          timeout: 90s
+        env:
+          TS_SOCKET: '{hop.dir}/tailscaled.sock'
+tools:
+- id: tailscale
+  version: 1.102.4
+  summary: The Tailscale client and daemon, for net.tailscale Hops
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://pkgs.tailscale.com/stable/tailscale_1.102.4_amd64.tgz sha=50748df1045e60b5b695f19f4c56b0da36c019948b440fb456b6584a50f0d8b9 ;; \
+          arm64) url=https://pkgs.tailscale.com/stable/tailscale_1.102.4_arm64.tgz sha=9dd1e6a592a014bbaea0103167ffe299adeda4ba14e078ce9c2895364f6c4c3f ;; \
+          *) echo "tailscale: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/tailscale.dl "${url}"; \
+        echo "${sha}  /tmp/tailscale.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/tailscale.d; \
+        tar -xzf /tmp/tailscale.dl -C /tmp/tailscale.d; \
+        install -m 0755 /tmp/tailscale.d/tailscale_1.102.4_${TARGETARCH}/tailscale /usr/local/bin/tailscale; \
+        install -m 0755 /tmp/tailscale.d/tailscale_1.102.4_${TARGETARCH}/tailscaled /usr/local/bin/tailscaled; \
+        rm -rf /tmp/tailscale.dl /tmp/tailscale.d
+  provides:
+  - binary: tailscale
+    version_command: tailscale version
+  - binary: tailscaled
+    version_command: tailscaled --version
+  notes: 'BSD-3-Clause. Checksums: pkgs.tailscale.com/stable/tailscale_1.102.4_<arch>.tgz.sha256. A net.tailscale Hop runs tailscaled per Job in userspace mode, or with a real interface when the Runner holds net_admin.'

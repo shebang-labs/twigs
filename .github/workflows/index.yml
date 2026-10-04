@@ -1,0 +1,67 @@
+# index: after a merge, rewrites catalog.json (the index every Hub reads)
+# and the README's table of Twigs from twigs/, and commits them, so a
+# contributor never edits either. main takes changes only through reviewed
+# pull requests; this workflow pushes with the INDEX_DEPLOY_KEY secret, a
+# write deploy key the branch's ruleset lets through, so its token stays
+# read-only.
+name: index
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "twigs/**"
+      - "catalog.json"
+      - "README.md"
+      - "schema/**"
+      - "cmd/**"
+      - "internal/**"
+      - "go.mod"
+      - "go.sum"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: index
+  cancel-in-progress: false
+
+jobs:
+  index:
+    name: index
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # main as it is now, not the pushed commit: another merge may
+          # have landed since.
+          ref: main
+          ssh-key: ${{ secrets.INDEX_DEPLOY_KEY }}
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check
+        run: make check
+      - name: Index and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # A merge that lands meanwhile rejects the push: index again on it.
+          for attempt in 1 2 3; do
+            make index
+            if git diff --quiet -- catalog.json README.md; then
+              echo "catalog.json and README.md are current"
+              exit 0
+            fi
+            git add catalog.json README.md
+            git commit -m "Index: catalog.json and the README's table"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            git fetch origin main
+            git reset --hard origin/main
+          done
+          echo "main kept moving; run the workflow again" >&2
+          exit 1

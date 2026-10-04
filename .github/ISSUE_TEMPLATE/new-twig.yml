@@ -1,0 +1,36 @@
+name: Request a Twig
+description: A tool, credential, network, or agent CLI that is missing from the catalog.
+labels: ["new twig"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Anyone can add a Twig with a pull request (CONTRIBUTING.md); a request helps when you cannot write it yourself.
+  - type: input
+    id: what
+    attributes:
+      label: What should the Twig add?
+      description: The CLI, the kind of credential, the network, or the agent.
+      placeholder: "the k9s CLI; a Datadog API key; ..."
+    validations:
+      required: true
+  - type: input
+    id: homepage
+    attributes:
+      label: Its homepage or releases page
+      placeholder: https://github.com/...
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: What would agents do with it?
+      description: The investigations or fixes it would help with.
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contributing
+      options:
+        - label: I would like to write it, with some guidance.

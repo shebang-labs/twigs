@@ -1,0 +1,227 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: network
+version: 1.0.0
+summary: 'Hop kinds to reach Targets: TCP, DNS, an SSH jump host, a private CA, a binary on the Runner'
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- network
+hop_kinds:
+- type: net.tcp
+  version: 1
+  summary: A host and port accept a TCP connection from the Runner
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - host
+    - port
+    properties:
+      host:
+        type: string
+        minLength: 1
+        maxLength: 253
+        pattern: ^(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)|\[[0-9A-Fa-f:.]+\])$
+        description: A DNS name (RFC 1123), an IPv4 address, or an IPv6 address in brackets.
+      port:
+        type: integer
+        minimum: 1
+        maximum: 65535
+  preflight:
+    run: nc -z -w 5 {params.host} {params.port}
+    expect:
+      exit_code: 0
+    timeout: 10s
+  remedy:
+    kind: human
+    text: Allow TCP {params.port} from the Runner's network to {params.host}, or bring the service back.
+  interactive: false
+  requires_tools:
+  - nc
+  requires_network:
+  - '{params.host}:{params.port}'
+- type: net.dns
+  version: 1
+  summary: A name resolves from the Runner's network
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+        maxLength: 253
+        pattern: ^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*\.?$
+        description: A DNS name (RFC 1123).
+  preflight:
+    run: getent hosts {params.name}
+    expect:
+      exit_code: 0
+    timeout: 10s
+  remedy:
+    kind: human
+    text: 'Make {params.name} resolvable from the Runner''s network: its DNS, a split-DNS rule, or the mesh''s resolver.'
+  interactive: false
+  requires_tools:
+  - getent
+- type: net.ssh_proxyjump
+  version: 3
+  summary: 'Reach Targets through an SSH bastion: check it answers, or open a SOCKS listener through it for the Job'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - bastion
+    properties:
+      bastion:
+        type: string
+        minLength: 1
+        maxLength: 253
+        pattern: ^(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)|\[[0-9A-Fa-f:.]+\])$
+        description: A DNS name (RFC 1123), an IPv4 address, or an IPv6 address in brackets.
+      port:
+        type: integer
+        minimum: 1
+        maximum: 65535
+        default: 22
+      user:
+        type: string
+        pattern: ^[a-z_][a-z0-9_.-]{0,31}$
+        description: A POSIX user name.
+      socks:
+        type: boolean
+        default: false
+        description: 'Open a SOCKS listener through the bastion for the Job (ssh -D) with the Hop''s key Secret, and export it as ALL_PROXY and HTTPS_PROXY; false: only check the bastion, which the image''s ~/.ssh/config names.'
+    if:
+      required:
+      - socks
+      properties:
+        socks:
+          const: true
+    then:
+      required:
+      - user
+  preflight:
+    run: nc -z -w 5 {params.bastion} {params.port}
+    expect:
+      exit_code: 0
+    timeout: 10s
+  remedy:
+    kind: human
+    text: Allow TCP {params.port} from the Runner's network to {params.bastion}, or bring the bastion back.
+  interactive: false
+  requires_tools:
+  - nc
+  requires_network:
+  - '{params.bastion}:{params.port}'
+  variants:
+    by: socks
+    values:
+      'false': {}
+      'true':
+        summary: A SOCKS listener through the bastion for the Job (ssh -D)
+        requires_tools:
+        - ssh
+        - nc
+        secrets:
+          key:
+            as: file
+            path: id_key
+          known_hosts:
+            as: file
+            path: known_hosts
+        up:
+        - run: ssh -N -D 127.0.0.1:{hop.port1} -i {secrets.key} -o UserKnownHostsFile={secrets.known_hosts} -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o BatchMode=yes -o ExitOnForwardFailure=yes -o ServerAliveInterval=15 -p {params.port} {params.user}@{params.bastion}
+          daemon: true
+        ready:
+          run: nc -z 127.0.0.1 {hop.port1}
+          timeout: 30s
+        preflight:
+          run: nc -z 127.0.0.1 {hop.port1}
+          expect:
+            exit_code: 0
+          timeout: 10s
+        env:
+          ALL_PROXY: socks5h://127.0.0.1:{hop.port1}
+          HTTPS_PROXY: socks5://127.0.0.1:{hop.port1}
+          NO_PROXY: localhost,127.0.0.1,::1
+- type: net.private_ca
+  version: 4
+  summary: Trust a private CA for TLS to a Target
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - host
+    - ca_pem
+    properties:
+      host:
+        type: string
+        minLength: 1
+        maxLength: 253
+        pattern: ^(?:(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*)|\[[0-9A-Fa-f:.]+\])$
+        description: A DNS name (RFC 1123), an IPv4 address, or an IPv6 address in brackets.
+      port:
+        type: integer
+        minimum: 1
+        maximum: 65535
+        default: 443
+      ca_pem:
+        type: string
+        pattern: ^-----BEGIN CERTIFICATE-----
+        description: The CA certificate, public by definition.
+  preflight:
+    run: openssl s_client -connect {params.host}:{params.port} -CAfile {ca_file} -verify_return_error
+    expect:
+      contains: 'Verify return code: 0 (ok)'
+    timeout: 10s
+  remedy:
+    kind: human
+    text: Update ca_pem to the CA that issues {params.host}'s certificate.
+  interactive: false
+  requires_tools:
+  - openssl
+  requires_network:
+  - '{params.host}:{params.port}'
+  env:
+    SSL_CERT_FILE: '{ca_bundle}'
+    REQUESTS_CA_BUNDLE: '{ca_bundle}'
+    GIT_SSL_CAINFO: '{ca_bundle}'
+    CURL_CA_BUNDLE: '{ca_bundle}'
+    NODE_EXTRA_CA_CERTS: '{ca_certs}'
+- type: tool.binary
+  version: 3
+  summary: A binary at a pinned version on the Runner image's PATH
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - binary
+    - version
+    properties:
+      binary:
+        type: string
+        pattern: ^[a-z0-9][a-z0-9_.-]*$
+      version:
+        type: string
+        minLength: 1
+        description: 'A version constraint the verify output must satisfy: comparisons (=, !=, >, >=, <, <=, ~ for the same minor, ^ for the same major) separated by commas or spaces, all of which must hold, for example ''>=1.30, <1.40''.'
+        pattern: ^[ ,]*(?:(?:=|!=|>=|<=|>|<|~|\^)?[ ]*v?[0-9]+(?:\.(?:[0-9]+|[xX*])){0,2}(?:-[0-9A-Za-z.-]+)?[ ,]*)+$
+      verify:
+        type: string
+        minLength: 1
+        maxLength: 512
+        pattern: ^[A-Za-z0-9 _./=:@%+,'"-]+$
+        description: The command that prints the version, run without a shell (split into words; quotes group, and no shell operators are accepted); defaults to '{params.binary} --version'. The first semantic version in its output must satisfy version.
+  preflight:
+    run: '{params.verify}'
+    expect:
+      exit_code: 0
+    timeout: 10s
+  remedy:
+    kind: human
+    text: Add {params.binary} {params.version} to the Runner's Image (a Tool that provides it), and let Forge build it.
+  interactive: false

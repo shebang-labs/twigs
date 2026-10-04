@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json",
+  "title": "Twig",
+  "description": "A Twig: Credential types, Hop kinds, Tools, and Agents a Hub installs at run time, from a body or from a URL with its SHA-256 (the Catalog). A Twig may require other Twigs, which the Hub installs first from its Catalog; a Twig of requires alone installs a set of Twigs in one go.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "twig",
+    "name",
+    "version",
+    "summary",
+    "publisher"
+  ],
+  "properties": {
+    "twig": {
+      "const": "twig-nest/twig/v1"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([.-][A-Za-z0-9.-]+)?$"
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "publisher": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri",
+      "pattern": "^https://"
+    },
+    "license": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "tags": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9-]{1,32}$"
+      }
+    },
+    "authenticator_types": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "$ref": "credential-type.json"
+      }
+    },
+    "hop_kinds": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "$ref": "hop-kind.json"
+      }
+    },
+    "tools": {
+      "type": "array",
+      "maxItems": 32,
+      "items": {
+        "$ref": "tool.json"
+      }
+    },
+    "agents": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {
+        "$ref": "agent.json"
+      }
+    },
+    "requires": {
+      "description": "The Twigs this one needs or brings along, by name, installed before it from the Hub's Catalog. One already installed at version or newer is kept; an older one is upgraded. A Twig that only requires others is a bundle.",
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/TwigRequirement"
+      }
+    }
+  },
+  "$defs": {
+    "TwigRequirement": {
+      "title": "TwigRequirement",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+        },
+        "version": {
+          "description": "The lowest version that will do; any when absent.",
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+([.-][A-Za-z0-9.-]+)?$"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: registry
+version: 1.0.0
+summary: Container registry access with a Docker config, for pushing Images
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- registry
+authenticator_types:
+- authenticator_type: registry.docker_config
+  version: 1
+  provider: registry
+  summary: A Docker config.json with the logins of the registries an Image is pulled from and pushed to
+  interactive: false
+  secrets:
+    config:
+      as: file
+      path: docker/config.json
+      env: DOCKER_CONFIG
+      env_dir: true
+  params:
+    type: object
+    additionalProperties: false
+    properties:
+      registry:
+        type: string
+        pattern: ^[a-z0-9][a-z0-9.-]*(:[0-9]{1,5})?$
+        description: The registry host the config logs in to, for the report.
+  usage: DOCKER_CONFIG is set (buildctl, docker, crane, oras, helm registry)
+  permissions_hint: A robot account or token that can pull the Image's base and push to its destination repository, as a Docker config.json (docker login writes one) in a Secret of the Environment Forge runs in.

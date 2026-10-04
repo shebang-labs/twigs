@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/catalog.json",
+  "title": "Catalog",
+  "description": "A Catalog index: the Twigs a git repository publishes, each with the URL of its file and its SHA-256.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "catalog",
+    "twigs"
+  ],
+  "properties": {
+    "catalog": {
+      "const": "twig-nest/catalog/v1"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "homepage": {
+      "type": "string",
+      "format": "uri"
+    },
+    "twigs": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/CatalogEntry"
+      }
+    }
+  },
+  "$defs": {
+    "CatalogEntry": {
+      "title": "CatalogEntry",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "summary",
+        "publisher",
+        "url",
+        "sha256"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+        },
+        "version": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "publisher": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "string",
+            "maxLength": 32
+          }
+        },
+        "provides": {
+          "description": "What it provides, by kind: the names of its Credential types, Hop kinds, Tools, and Agents.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        },
+        "requires": {
+          "description": "The names of the Twigs it requires, which install with it.",
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+          }
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

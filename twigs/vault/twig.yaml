@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: vault
+version: 1.0.0
+summary: HashiCorp Vault's CLI
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- secrets
+tools:
+- id: vault
+  version: 2.1.1
+  summary: The HashiCorp Vault CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://releases.hashicorp.com/vault/2.1.1/vault_2.1.1_linux_amd64.zip sha=8aa90f9cea46f541fc7baa3d0ec692fc06afde9a248cc1f2dcac46a567c6f56b ;; \
+          arm64) url=https://releases.hashicorp.com/vault/2.1.1/vault_2.1.1_linux_arm64.zip sha=c2c74e111ffbc83b3d29c6f0c0215a5e53d738c9fad045f7797bcdcde3156067 ;; \
+          *) echo "vault: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/vault.dl "${url}"; \
+        echo "${sha}  /tmp/vault.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/vault.d; \
+        unzip -q /tmp/vault.dl -d /tmp/vault.d; \
+        install -m 0755 /tmp/vault.d/vault /usr/local/bin/vault; \
+        rm -rf /tmp/vault.dl /tmp/vault.d
+  provides:
+  - binary: vault
+    version_command: vault version
+  notes: 'BUSL-1.1. Checksums: vault_2.1.1_SHA256SUMS on releases.hashicorp.com.'

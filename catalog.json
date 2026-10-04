@@ -1,0 +1,504 @@
+{
+  "catalog": "twig-nest/catalog/v1",
+  "name": "Twigs",
+  "homepage": "https://github.com/shebang-labs/twigs",
+  "twigs": [
+    {
+      "name": "ambient",
+      "version": "1.0.0",
+      "summary": "A platform identity the Runner already has: workload identity, an instance profile",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "cloud"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "ambient"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ambient/twig.yaml",
+      "sha256": "09cb46fbd37aac622697c4d3afa58b51b51d7ff912322c121db087b76679373c"
+    },
+    {
+      "name": "argocd",
+      "version": "1.0.1",
+      "summary": "The Argo CD CLI, to read Applications' sync and health state",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "kubernetes",
+        "gitops"
+      ],
+      "provides": {
+        "tools": [
+          "argocd"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/argocd/twig.yaml",
+      "sha256": "9aa20b73088ed1dd4d9d26f736e5f70aed23d730a28ab751da6c262a3c9e4625"
+    },
+    {
+      "name": "aws",
+      "version": "1.0.0",
+      "summary": "AWS access with access keys, and the AWS CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "cloud",
+        "aws"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "aws.keys"
+        ],
+        "tools": [
+          "aws"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/aws/twig.yaml",
+      "sha256": "dd625126b3f37747ff11b93b247c053551d8975d8f2ca00433b6059cce9a4700"
+    },
+    {
+      "name": "azure",
+      "version": "1.0.0",
+      "summary": "The Azure CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "cloud",
+        "azure"
+      ],
+      "provides": {
+        "tools": [
+          "az"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/azure/twig.yaml",
+      "sha256": "bbc7cb5588b5c52bb984039a4855fbe8eaa386767f671d5fc1cbcad4d8980ca1"
+    },
+    {
+      "name": "buildkit",
+      "version": "1.0.0",
+      "summary": "BuildKit's buildctl, to build images from a Runner",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "build"
+      ],
+      "provides": {
+        "tools": [
+          "buildctl"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/buildkit/twig.yaml",
+      "sha256": "bb254bd4cc7196ea550b095bd871b5c6580bfafbdafa7ca2d7b2e3a506862710"
+    },
+    {
+      "name": "claude-code",
+      "version": "1.0.0",
+      "summary": "Claude Code as an agent, over the Agent Client Protocol",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "agent",
+        "acp"
+      ],
+      "provides": {
+        "agents": [
+          "claude-code"
+        ],
+        "tools": [
+          "claude-code",
+          "claude-agent-acp"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/claude-code/twig.yaml",
+      "sha256": "61f72ed40c1602d95bdc174354e5b7ef5fd3ed8e81951a9aaf0107d6393c52fc"
+    },
+    {
+      "name": "codex",
+      "version": "1.0.0",
+      "summary": "Codex CLI as an agent, over the Agent Client Protocol",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "agent",
+        "acp"
+      ],
+      "provides": {
+        "agents": [
+          "codex"
+        ],
+        "tools": [
+          "codex",
+          "codex-acp"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/codex/twig.yaml",
+      "sha256": "05fc5cb6192001c461469d1051bf41506920d381a91024f67ad3fab27b40525d"
+    },
+    {
+      "name": "core",
+      "version": "1.0.0",
+      "summary": "What every Hub starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "bundle"
+      ],
+      "provides": {},
+      "requires": [
+        "kubernetes",
+        "http",
+        "github",
+        "gitlab",
+        "registry",
+        "network",
+        "ambient",
+        "claude-code"
+      ],
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/core/twig.yaml",
+      "sha256": "ef7e5402d3b61267f50f3f2425eadcdac3ce8eca0f8028d4d9445462b33df140"
+    },
+    {
+      "name": "gcp",
+      "version": "1.0.0",
+      "summary": "Google Cloud access with a service account, and the gcloud CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "cloud",
+        "gcp"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "gcp.service_account"
+        ],
+        "tools": [
+          "gcloud"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/gcp/twig.yaml",
+      "sha256": "feba398732495b13424e7dc0e09556c6c30b2a533e540d9e3bf05b045e0aea17"
+    },
+    {
+      "name": "github",
+      "version": "1.0.0",
+      "summary": "GitHub access with a token, for git and the gh CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "git",
+        "github"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "github.token"
+        ],
+        "tools": [
+          "gh"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/github/twig.yaml",
+      "sha256": "dcf46fe6c19f0d82b0f7fc36798784d40b575e6e721b16ed4ac3296cce6d3563"
+    },
+    {
+      "name": "gitlab",
+      "version": "1.0.0",
+      "summary": "GitLab access with a token, for git",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "git",
+        "gitlab"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "gitlab.token"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/gitlab/twig.yaml",
+      "sha256": "7dabe6fcb25efb56eb0f4988ec9a07801fbbc11be399abb15f040747f4cbdc92"
+    },
+    {
+      "name": "http",
+      "version": "1.0.0",
+      "summary": "HTTP APIs with an API key, such as a model provider's",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "http"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "http.api_key"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/http/twig.yaml",
+      "sha256": "6bffe587a9b3853b3a179e9bc8b0a7d6d789ff3a5e095707d7a06c1a44842112"
+    },
+    {
+      "name": "kubernetes",
+      "version": "1.0.0",
+      "summary": "Kubernetes access with a kubeconfig, and the kubectl and helm CLIs",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "kubernetes"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "k8s.kubeconfig"
+        ],
+        "tools": [
+          "kubectl",
+          "helm"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/kubernetes/twig.yaml",
+      "sha256": "bcfc6918e5c2da34c85c2187b098fb2e5446cbfa157ebbee5ccd0c2f40974069"
+    },
+    {
+      "name": "logcli",
+      "version": "1.0.1",
+      "summary": "Grafana Loki's logcli, to query logs with LogQL",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "logs",
+        "grafana"
+      ],
+      "provides": {
+        "tools": [
+          "logcli"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/logcli/twig.yaml",
+      "sha256": "6426fe0ac9013a5d0093dbf61fedee34e121b142c779b0e53f4e28ae33941747"
+    },
+    {
+      "name": "memcached",
+      "version": "1.0.0",
+      "summary": "memcached's command-line tools",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "cache"
+      ],
+      "provides": {
+        "tools": [
+          "memcached-tools"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/memcached/twig.yaml",
+      "sha256": "4b60e94765eb69a9f3c513d1d1c5d4eecb5070ddc16bbdafcb0d5d6905611760"
+    },
+    {
+      "name": "mysql",
+      "version": "1.0.1",
+      "summary": "MySQL and MariaDB access, read-only, with the mariadb client",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "database"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "mysql.password"
+        ],
+        "tools": [
+          "mariadb-client"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/mysql/twig.yaml",
+      "sha256": "f555359430e80d764480aedbf5fbdf94744dc88c485c6dca0880342bb1f09d00"
+    },
+    {
+      "name": "network",
+      "version": "1.0.0",
+      "summary": "Hop kinds to reach Targets: TCP, DNS, an SSH jump host, a private CA, a binary on the Runner",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "network"
+      ],
+      "provides": {
+        "hop_kinds": [
+          "net.tcp",
+          "net.dns",
+          "net.ssh_proxyjump",
+          "net.private_ca",
+          "tool.binary"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/network/twig.yaml",
+      "sha256": "7afd2a36f3a5e210fa046d94523d2ed0c1da2c2bd00192c20629e31c5ef51b69"
+    },
+    {
+      "name": "opencode",
+      "version": "1.1.1",
+      "summary": "OpenCode as an investigating agent, driven over the Agent Client Protocol (any model provider)",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "agent",
+        "acp"
+      ],
+      "provides": {
+        "agents": [
+          "opencode"
+        ],
+        "tools": [
+          "opencode"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/opencode/twig.yaml",
+      "sha256": "bd56212be8997b62b3469ca3771caf3dd0c2c3089f730357efe7b37c15cf77b7"
+    },
+    {
+      "name": "ops-essentials",
+      "version": "1.0.1",
+      "summary": "The Twigs most teams start with, installed in one go",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "bundle"
+      ],
+      "provides": {},
+      "requires": [
+        "argocd",
+        "logcli",
+        "mysql",
+        "ssh"
+      ],
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ops-essentials/twig.yaml",
+      "sha256": "92dd24e5b1a2adc9e56a3925783cefbc5fcd129bfe6904a66b5f7b782c37eca4"
+    },
+    {
+      "name": "postgres",
+      "version": "1.0.0",
+      "summary": "PostgreSQL access with a password, and psql",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "database"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "postgres.password"
+        ],
+        "tools": [
+          "psql"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/postgres/twig.yaml",
+      "sha256": "d76838d3ee1d8c854f40e018efca268e140f95d76b51e13cf8feebb7dff27636"
+    },
+    {
+      "name": "redis",
+      "version": "1.0.0",
+      "summary": "Redis access with a password, and redis-cli",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "database",
+        "cache"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "redis.password"
+        ],
+        "tools": [
+          "redis-cli"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/redis/twig.yaml",
+      "sha256": "26694a6a2233c5fe1ce5ea70fc506d5b76b9d5d667a61aa8532e77599a8795d8"
+    },
+    {
+      "name": "registry",
+      "version": "1.0.0",
+      "summary": "Container registry access with a Docker config, for pushing Images",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "registry"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "registry.docker_config"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/registry/twig.yaml",
+      "sha256": "d96ca75f1f697916848d917e3ad8523c9d941b9c38f964ef8bf97434b296466e"
+    },
+    {
+      "name": "ssh",
+      "version": "1.1.1",
+      "summary": "SSH access to hosts with a private key and pinned host keys",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "host"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "ssh.key"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ssh/twig.yaml",
+      "sha256": "88bef707ccba8b540ee8e0b4e285248f70ed49ad406038d620047ea08225a94d"
+    },
+    {
+      "name": "tailscale",
+      "version": "1.0.0",
+      "summary": "Join a tailnet for a Job: the Tailscale Hop kind and its CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "network",
+        "vpn"
+      ],
+      "provides": {
+        "hop_kinds": [
+          "net.tailscale"
+        ],
+        "tools": [
+          "tailscale"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/tailscale/twig.yaml",
+      "sha256": "bc5e9dd847c029c1cd1839039480acf675cb8d3841fc73b2e5355f1fb1a3d5b9"
+    },
+    {
+      "name": "terraform",
+      "version": "1.0.0",
+      "summary": "The Terraform CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "iac"
+      ],
+      "provides": {
+        "tools": [
+          "terraform"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/terraform/twig.yaml",
+      "sha256": "cceec09e1aeaf8ff650ba0749bf1aef7a08c4b2f34a3e8fa44891ff68de64856"
+    },
+    {
+      "name": "vault",
+      "version": "1.0.0",
+      "summary": "HashiCorp Vault's CLI",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "secrets"
+      ],
+      "provides": {
+        "tools": [
+          "vault"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/vault/twig.yaml",
+      "sha256": "88cc105a76eb11b0cf0e75dd1f48f476b4acc34f35f3f5b9b86f8aedf2f2e506"
+    },
+    {
+      "name": "wireguard",
+      "version": "1.0.0",
+      "summary": "Join a WireGuard network for a Job: the Hop kind, wireguard-tools, and wireproxy",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "network",
+        "vpn"
+      ],
+      "provides": {
+        "hop_kinds": [
+          "net.wireguard"
+        ],
+        "tools": [
+          "wireguard-tools",
+          "wireproxy"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/wireguard/twig.yaml",
+      "sha256": "b1ce2312018ad4a37c66f4cccf8ac2f8ca8f773f12d49ae969d2eb8331d4caa5"
+    }
+  ]
+}

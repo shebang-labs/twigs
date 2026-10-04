@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/tool.json",
+  "title": "Tool",
+  "description": "A tool (a CLI, a client, an agent runtime) Forge knows how to install into an Image: a version, a Dockerfile fragment that installs it from a pinned, checksummed source, and the binaries it puts on PATH. Twigs provide them (the Catalog), and an admin adds others. A fragment carries no secret and no Environment-specific configuration: the Job's Secrets configure the tools at run time.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "install",
+    "provides"
+  ],
+  "properties": {
+    "id": {
+      "description": "The Tool's name, as Images list it (kubectl, aws, tailscale).",
+      "$ref": "#/$defs/EntityID"
+    },
+    "rev": {
+      "description": "Current revision number, assigned by the Hub.",
+      "type": "integer",
+      "minimum": 1,
+      "readOnly": true
+    },
+    "version": {
+      "description": "The tool's version the fragment installs.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "summary": {
+      "type": "string",
+      "maxLength": 256
+    },
+    "install": {
+      "description": "Dockerfile instructions that install the tool after a FROM: RUN, COPY --from=\u003cimage\u003e@sha256:\u003cdigest\u003e, ENV, ARG, and WORKDIR only (the renderer owns FROM, USER, and ENTRYPOINT). A fragment downloads from a pinned URL and checks its SHA-256; it runs as root at build time. ARG TARGETARCH names the platform being built.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 16384
+    },
+    "provides": {
+      "description": "The binaries it puts on PATH, each with the command that prints its version (tool.binary Hops and the Heartbeat's tool_versions look for them).",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 16,
+      "items": {
+        "$ref": "#/$defs/ProvidedBinary"
+      }
+    },
+    "platforms": {
+      "description": "The platforms the fragment supports (default both).",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/Platform"
+      }
+    },
+    "notes": {
+      "description": "The pinned source and checksum, the license, anything a reviewer needs.",
+      "type": "string",
+      "maxLength": 4096
+    }
+  },
+  "$defs": {
+    "ProvidedBinary": {
+      "title": "ProvidedBinary",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "binary"
+      ],
+      "properties": {
+        "binary": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.-]{0,63}$"
+        },
+        "version_command": {
+          "description": "Prints the version; default '\u003cbinary\u003e --version'. Split into words, no shell.",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9 _./=:@%+,'\"-]+$",
+          "maxLength": 256
+        }
+      }
+    },
+    "EntityID": {
+      "title": "EntityID",
+      "description": "Identifier of a declared entity, chosen by the author on create and immutable. Lower case, digits, '-', '_', and '.', such as k8s-prod-eu-ro, prod-eu-vpc, or hop_wg_prod_eu.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_.-]{0,62}$",
+      "examples": [
+        "k8s-prod-eu",
+        "prod-eu-vpc",
+        "hop_wg_prod_eu"
+      ]
+    },
+    "Platform": {
+      "title": "Platform",
+      "description": "An OCI platform an Image is built for.",
+      "type": "string",
+      "enum": [
+        "linux/amd64",
+        "linux/arm64"
+      ]
+    }
+  }
+}

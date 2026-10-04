@@ -1,0 +1,488 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/hop-kind.json",
+  "title": "HopKind",
+  "description": "A manifest for a kind of Hop, like an Authenticator type: a parameter schema, a built-in check with an expected result, a remedy, the destinations it needs, and the environment it sets. A kind that joins a network for a Job also declares secret slots, files, up steps, a ready check, and down commands: the Runner starts up as child processes in the Job's process group, in the Hop's directory under the Job's working directory, with the slots written there, retries ready until it passes, exports env to the checks after it and to the work, and stops everything at finalize. Twigs provide them; nothing is built in.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "version",
+    "summary",
+    "params",
+    "preflight",
+    "remedy",
+    "interactive"
+  ],
+  "properties": {
+    "type": {
+      "$ref": "#/$defs/HopKindName"
+    },
+    "version": {
+      "description": "Incremented on every change a Hop's params or checks could notice.",
+      "type": "integer",
+      "minimum": 1
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "params": {
+      "description": "JSON Schema (2020-12) for Hop.params. Never secret.",
+      "$ref": "#/$defs/ParamsSchema"
+    },
+    "preflight": {
+      "description": "The built-in check, run after up and ready when the kind has them.",
+      "$ref": "#/$defs/Check"
+    },
+    "remedy": {
+      "$ref": "#/$defs/Remedy"
+    },
+    "interactive": {
+      "description": "A human must cross it.",
+      "type": "boolean"
+    },
+    "requires_tools": {
+      "description": "Binaries the checks and up need on the Runner image's PATH (a Tool of the Image provides them).",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+      }
+    },
+    "requires_network": {
+      "description": "Destinations the Hop needs, as host or host:port templates of its params; a host without a port means 443. What the operator's network policy must allow; nothing enforces it.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      }
+    },
+    "requires_capabilities": {
+      "description": "Runner capabilities the Hop needs (net_admin for a kernel-mode network): the Hub adds them to the requirements of every Job on a Route through the Hop.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/RunnerCapability"
+      }
+    },
+    "env": {
+      "description": "Variables set for the checks after the Hop and for the work of a Job whose Route crosses it, as templates (see placeholders). net.private_ca sets the CA trust per runtime (SSL_CERT_FILE, REQUESTS_CA_BUNDLE, GIT_SSL_CAINFO, CURL_CA_BUNDLE, NODE_EXTRA_CA_CERTS); a network Hop exports its proxies (ALL_PROXY, HTTPS_PROXY). When two Hops of a Job export the same variable, the first on the Job's Routes wins.",
+      "type": "object",
+      "maxProperties": 16,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "propertyNames": {
+        "pattern": "^[A-Z_][A-Z0-9_]{0,63}$"
+      }
+    },
+    "secrets": {
+      "description": "The slots a Hop of this kind fills with Secrets of its Route's Environment; file slots are written in the Hop's directory.",
+      "type": "object",
+      "maxProperties": 8,
+      "propertyNames": {
+        "$ref": "#/$defs/SecretSlotName"
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/SlotDefinition"
+      }
+    },
+    "files": {
+      "description": "Non-secret files the client reads, rendered from templates into the Hop's directory before up runs (mode 0600); {file.\u003cname\u003e} is a file's path.",
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/HopFile"
+      }
+    },
+    "up": {
+      "description": "The steps that join the network, in order. A step runs to completion within its timeout and must succeed, unless it is a daemon (the client, such as tailscaled), which is started and left running until finalize; a daemon that ends before ready passes fails the Hop at once.",
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "$ref": "#/$defs/HopStep"
+      }
+    },
+    "ready": {
+      "description": "Run until it passes, within its timeout (default 30 s), before anything uses the Hop; required with up.",
+      "$ref": "#/$defs/Check"
+    },
+    "down": {
+      "description": "Commands run at finalize before the daemons are stopped (a logout), each within 10 s.",
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096
+      }
+    },
+    "variants": {
+      "$ref": "#/$defs/HopVariants"
+    }
+  },
+  "dependentRequired": {
+    "up": [
+      "ready"
+    ]
+  },
+  "$defs": {
+    "HopStep": {
+      "title": "HopStep",
+      "description": "One up step: split into words without a shell and rendered word by word, run in the Hop's directory with the Job's environment.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run"
+      ],
+      "properties": {
+        "run": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "daemon": {
+          "description": "A long-running process: started and not waited for; stopped at finalize (SIGTERM to its process group, then SIGKILL after 5 s).",
+          "type": "boolean",
+          "default": false
+        },
+        "timeout": {
+          "description": "A step that is not a daemon must finish within it (default 60s).",
+          "$ref": "#/$defs/Duration"
+        },
+        "stdin": {
+          "description": "A file slot whose value is written to the step's standard input (and closed), for a client that reads a key there.",
+          "$ref": "#/$defs/SecretSlotName"
+        }
+      }
+    },
+    "HopFile": {
+      "title": "HopFile",
+      "description": "One non-secret file of a Hop's client, named name ({file.name}), with content rendered from a template.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "content"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]{0,31}$"
+        },
+        "content": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 65536
+        }
+      }
+    },
+    "HopVariants": {
+      "title": "HopVariants",
+      "description": "Per-value overrides chosen by one param (net.tailscale's mode: userspace or kernel; net.ssh_proxyjump's socks). The param is a string or boolean enum in params with a default; the chosen value's fields replace the manifest's.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "by",
+        "values"
+      ],
+      "properties": {
+        "by": {
+          "type": "string",
+          "pattern": "^[a-z_][a-z0-9_]*$"
+        },
+        "values": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "$ref": "#/$defs/HopVariant"
+          }
+        }
+      }
+    },
+    "HopVariant": {
+      "title": "HopVariant",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "preflight": {
+          "$ref": "#/$defs/Check"
+        },
+        "requires_tools": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_.-]*$"
+          }
+        },
+        "requires_capabilities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/RunnerCapability"
+          }
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "propertyNames": {
+            "pattern": "^[A-Z_][A-Z0-9_]{0,63}$"
+          }
+        },
+        "secrets": {
+          "type": "object",
+          "maxProperties": 8,
+          "propertyNames": {
+            "$ref": "#/$defs/SecretSlotName"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/SlotDefinition"
+          }
+        },
+        "files": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/HopFile"
+          }
+        },
+        "up": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/HopStep"
+          }
+        },
+        "ready": {
+          "$ref": "#/$defs/Check"
+        },
+        "down": {
+          "type": "array",
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096
+          }
+        }
+      }
+    },
+    "Check": {
+      "title": "Check",
+      "description": "A command the Runner runs as a child process, without a shell, and what counts as passing. The command line is split into words first, then each word's placeholders ({params.x}, {secrets.\u003cslot\u003e}, {credential.name}, and the Hop kind's {hop.*}) are rendered, so a value never adds a word; a run that is exactly one {params.x} placeholder is that parameter split into words (a user-supplied check such as http.api_key's). With no expect, exit code 0 passes.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "run"
+      ],
+      "properties": {
+        "run": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "expect": {
+          "$ref": "#/$defs/CheckExpect"
+        },
+        "timeout": {
+          "$ref": "#/$defs/Duration"
+        }
+      }
+    },
+    "CheckExpect": {
+      "title": "CheckExpect",
+      "description": "Expected result of a Check (expect: {json: $.Arn, contains: ...}). Every given condition must hold.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "exit_code": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "json": {
+          "description": "A JSONPath into the command's standard output, which must parse as JSON.",
+          "type": "string",
+          "pattern": "^\\$"
+        },
+        "contains": {
+          "description": "A substring of the standard output, or of the value at json when json is given.",
+          "type": "string"
+        }
+      }
+    },
+    "Duration": {
+      "title": "Duration",
+      "description": "A relative duration: a non-negative integer and one unit (ms, s, m, h), such as 60s, 15m, or 1h. Absolute deadlines use RFC 3339 timestamps instead. Compound forms such as 1h30m are not accepted.",
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(ms|s|m|h)$",
+      "examples": [
+        "60s",
+        "15m",
+        "1h"
+      ]
+    },
+    "HopKindName": {
+      "title": "HopKindName",
+      "description": "Name of a Hop kind: net.*, identity.*, or tool.*. Which names exist is data, the kinds installed Twigs provide, not an enumeration.",
+      "type": "string",
+      "pattern": "^(net|identity|tool)\\.[a-z0-9_]+$",
+      "examples": [
+        "net.ssh_proxyjump",
+        "tool.binary",
+        "net.private_ca"
+      ]
+    },
+    "ParamsSchema": {
+      "title": "ParamsSchema",
+      "description": "A JSON Schema (2020-12) for an object of parameters, as a Hop kind or Authenticator type manifest declares it. The Hub validates params with it.",
+      "type": "object",
+      "additionalProperties": true,
+      "if": {
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "type": {
+            "const": "object"
+          }
+        }
+      },
+      "else": {
+        "not": {}
+      }
+    },
+    "Remedy": {
+      "title": "Remedy",
+      "description": "What fixes a failing check: something the Runner can do, or what a person must do.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/RemedyKind"
+        },
+        "text": {
+          "description": "What to do, for the owner named in the capability report.",
+          "type": "string",
+          "minLength": 1
+        },
+        "run": {
+          "description": "The command that applies the remedy, for kind automatable.",
+          "type": "string"
+        }
+      }
+    },
+    "RemedyKind": {
+      "title": "RemedyKind",
+      "description": "Whether a remedy can be applied by the platform or needs a human.",
+      "type": "string",
+      "enum": [
+        "automatable",
+        "human"
+      ]
+    },
+    "RunnerCapability": {
+      "title": "RunnerCapability",
+      "description": "What a Runner can do beyond running exec and preflight Jobs, which it reports to the Hub and a Job may require. build: its config names a BuildKit endpoint, so it is Forge and leases build Jobs. net_admin: it holds CAP_NET_ADMIN and passes it to its Jobs, so a Hop can join a network in kernel mode.",
+      "type": "string",
+      "enum": [
+        "build",
+        "net_admin"
+      ]
+    },
+    "SecretSlotName": {
+      "title": "SecretSlotName",
+      "description": "Name of a secret slot an Authenticator type or Hop kind declares (kubeconfig, key, authkey); a Credential or Hop maps each slot to a Secret.",
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,31}$"
+    },
+    "SlotDefinition": {
+      "title": "SlotDefinition",
+      "description": "One secret slot of an Authenticator type or Hop kind. as file: the Runner writes the value to \u003cwork\u003e/secrets/\u003cowner id\u003e/\u003cpath\u003e (mode 0600; path defaults to the slot's name), {secrets.\u003cslot\u003e} is that path, and env, when given, is set to the path (or its directory, with env_dir); as env: the value is set as the variable env, and has no placeholder. env may use {params.x}. join: when several Credentials of a Job set the same variable, their values are joined with it (KUBECONFIG ':'); without join the Hub refuses the Job. optional: a Credential may leave the slot unfilled.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "as"
+      ],
+      "properties": {
+        "as": {
+          "type": "string",
+          "enum": [
+            "file",
+            "env"
+          ]
+        },
+        "env": {
+          "description": "The variable, a template of {params.x}; required for as env.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "path": {
+          "description": "as file: the file's path under the owner's directory, relative and clean (config.json, docker/config.json).",
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$",
+          "maxLength": 128
+        },
+        "env_dir": {
+          "description": "as file: env is the file's directory, not the file (DOCKER_CONFIG).",
+          "type": "boolean"
+        },
+        "join": {
+          "description": "The separator several Credentials' values of the same variable are joined with.",
+          "type": "string",
+          "enum": [
+            ":",
+            ","
+          ]
+        },
+        "optional": {
+          "type": "boolean"
+        }
+      },
+      "if": {
+        "properties": {
+          "as": {
+            "const": "env"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "env"
+        ],
+        "properties": {
+          "path": {
+            "not": {}
+          },
+          "env_dir": {
+            "not": {}
+          }
+        }
+      }
+    }
+  }
+}

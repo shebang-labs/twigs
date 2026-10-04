@@ -1,0 +1,56 @@
+# check: every pull request, merge queue entry, and push to main runs make
+# check and make lint: the checker's tests; every Twig against the schemas
+# and the checks a Hub runs on install; against the base branch, a version
+# bump for every changed Twig and no hand-made catalog.json; yamllint; and
+# actionlint. Problems show as annotations on the pull request's files.
+name: check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  twigs:
+    name: twigs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The base branch, to compare versions with.
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Test the checker and check the Twigs
+        env:
+          # The branch a pull request or a merge queue entry goes into.
+          BASE_REF: ${{ github.base_ref || github.event.merge_group.base_ref }}
+        run: |
+          base="${BASE_REF#refs/heads/}"
+          make check BASE="${base:+origin/$base}"
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: yamllint and actionlint
+        run: make lint YAMLLINT="pipx run yamllint==1.37.1"

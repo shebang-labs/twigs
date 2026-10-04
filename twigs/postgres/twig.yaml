@@ -1,0 +1,85 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: postgres
+version: 1.0.0
+summary: PostgreSQL access with a password, and psql
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- database
+authenticator_types:
+- authenticator_type: postgres.password
+  version: 1
+  provider: postgres
+  summary: 'A PostgreSQL login: psql and the libpq tools connect with the standard PG variables'
+  interactive: false
+  secrets:
+    password:
+      as: env
+      env: PGPASSWORD
+  env:
+    PGHOST: '{params.host}'
+    PGPORT: '{params.port}'
+    PGDATABASE: '{params.database}'
+    PGUSER: '{params.user}'
+    PGSSLMODE: '{params.sslmode}'
+    PGCONNECT_TIMEOUT: '10'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - host
+    - user
+    - database
+    properties:
+      host:
+        type: string
+        pattern: ^[A-Za-z0-9.-]{1,253}$
+        description: The server's host name or address, as the Runner reaches it (a VM's tailnet name).
+      port:
+        type: string
+        pattern: ^[0-9]{1,5}$
+        description: Default 5432.
+      database:
+        type: string
+        pattern: ^[A-Za-z0-9_.-]{1,63}$
+      user:
+        type: string
+        pattern: ^[A-Za-z0-9_.-]{1,63}$
+      sslmode:
+        type: string
+        enum:
+        - disable
+        - allow
+        - prefer
+        - require
+        - verify-ca
+        - verify-full
+        description: Default prefer.
+  requires_tools:
+  - psql
+  usage: 'psql (PGHOST, PGDATABASE, and PGUSER are set): psql -c "select ..."'
+  preflight:
+    authn:
+      run: psql -X -A -t -c "select current_user"
+      expect:
+        exit_code: 0
+      timeout: 20s
+    authz:
+      run: psql -X -A -t -c "select case when has_database_privilege(current_database(), 'CONNECT') then 'yes' else 'no' end"
+      expect:
+        contains: 'yes'
+  permissions_hint: 'A role with pg_read_all_data (or SELECT on what matters) and pg_monitor, never a superuser or an owner below act; set default_transaction_read_only on it. psql opens raw TCP: across a Tailscale or WireGuard Hop the Hop needs kernel mode (a Runner with networkAdmin).'
+tools:
+- id: psql
+  version: '17'
+  summary: The PostgreSQL client (psql, pg_dump)
+  install: |
+    RUN set -eu; \
+        apt-get update; \
+        DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends postgresql-client=17+278; \
+        rm -rf /var/lib/apt/lists/*
+  provides:
+  - binary: psql
+    version_command: psql --version
+  notes: 'PostgreSQL license. A Debian package at the pinned version, from the base''s snapshot (apt checks it against the snapshot''s signed index). psql opens raw TCP: through a Hop''s network it needs kernel mode.'
