@@ -26,4 +26,4 @@ A Twig's commands run on Runners: a Tool's install step on the Forge, a type's c
 
 ## Your own catalog
 
-Point a Hub's Settings `catalog_url` at any `catalog.json` served over https: a fork of this directory works, and so does a mirror for a Hub that cannot reach GitHub. A Hub that cannot read its catalog at start keeps retrying until it can.
+Point a Hub at any `catalog.json` served over https, where it is deployed (`TWIG_NEST_CATALOG_URL`, or `hub.catalogURL` in its Helm chart) or in its console's Settings (Catalog URL, which wins): a fork of this directory works, and so does a mirror for a Hub that cannot reach GitHub. A Hub that cannot read its catalog at start keeps retrying until it can.
