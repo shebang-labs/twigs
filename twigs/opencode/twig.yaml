@@ -1,0 +1,47 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: opencode
+version: 1.1.1
+summary: OpenCode as an investigating agent, driven over the Agent Client Protocol (any model provider)
+publisher: Twig Nest project
+homepage: https://opencode.ai/docs/acp/
+license: MIT
+tags: [agent, acp]
+tools:
+- id: opencode
+  version: 1.18.34
+  summary: The OpenCode agent CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) asset=opencode-linux-x64.tar.gz sha=0f22479647226d1d2dd99595d20082ee7bda3870b62dc6a90b41efc1a71d7e9a ;; \
+          arm64) asset=opencode-linux-arm64.tar.gz sha=bbdb3f00c2c51e42e315525233151309724226a8776da8e9145e3b0fa3d5310f ;; \
+          *) echo "opencode: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/opencode.tgz "https://github.com/anomalyco/opencode/releases/download/v1.18.34/${asset}"; \
+        echo "${sha}  /tmp/opencode.tgz" | sha256sum --check --strict -; \
+        mkdir -p /tmp/opencode.d; \
+        tar -xzf /tmp/opencode.tgz -C /tmp/opencode.d; \
+        install -m 0755 /tmp/opencode.d/opencode /usr/local/bin/opencode; \
+        rm -rf /tmp/opencode.tgz /tmp/opencode.d
+  provides:
+  - binary: opencode
+    version_command: opencode --version
+  notes: 'MIT. Checksums: the release assets'' SHA-256 digests on GitHub. It speaks ACP natively (opencode acp).'
+agents:
+- id: opencode
+  summary: OpenCode over the Agent Client Protocol; the Runner picks the Job's model through the session's model option, so set a Profile model such as claude-sonnet-5-5
+  binary: opencode
+  tool: opencode
+  args: [acp]
+  resume:
+    state: .local/share/opencode
+  key_env: [ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY]
+  pass_env: [ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, OPENROUTER_API_KEY, ANTHROPIC_BASE_URL, OPENAI_BASE_URL]
+  env:
+    OPENCODE_DISABLE_AUTOUPDATE: "1"
+    OPENCODE_DISABLE_SHARE: "1"
+    OPENCODE_DISABLE_DEFAULT_PLUGINS: "1"
+    OPENCODE_DISABLE_LSP_DOWNLOAD: "1"
+  version_command: opencode --version

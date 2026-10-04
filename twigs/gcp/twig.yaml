@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: gcp
+version: 1.0.0
+summary: Google Cloud access with a service account, and the gcloud CLI
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- cloud
+- gcp
+authenticator_types:
+- authenticator_type: gcp.service_account
+  version: 1
+  provider: gcp
+  summary: 'A Google Cloud service account key: gcloud, the client libraries, and GKE clusters (through gke-gcloud-auth-plugin) act as the service account'
+  interactive: false
+  secrets:
+    key:
+      as: file
+      path: gcp-service-account.json
+      env: GOOGLE_APPLICATION_CREDENTIALS
+  env:
+    CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: '{secrets.key}'
+    CLOUDSDK_CORE_PROJECT: '{params.project}'
+    GOOGLE_CLOUD_PROJECT: '{params.project}'
+    CLOUDSDK_COMPUTE_REGION: '{params.region}'
+    USE_GKE_GCLOUD_AUTH_PLUGIN: 'True'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - project
+    properties:
+      project:
+        type: string
+        pattern: ^[a-z][a-z0-9-]{4,28}[a-z0-9]$
+        description: The Google Cloud project id gcloud works in (CLOUDSDK_CORE_PROJECT).
+      region:
+        type: string
+        pattern: ^[a-z]+-[a-z]+[0-9]+$
+        description: The default region (europe-west1).
+  requires_tools:
+  - gcloud
+  usage: gcloud (acts as the service account in project {params.project}); gcloud container clusters get-credentials <cluster> --region <region> for kubectl; gcloud builds list, gcloud logging read
+  preflight:
+    authn:
+      run: gcloud projects describe {params.project} --format=json
+      expect:
+        json: $.projectId
+      timeout: 30s
+  permissions_hint: 'A service account with roles/viewer (or narrower: roles/container.viewer, roles/cloudbuild.builds.viewer, roles/logging.viewer, roles/monitoring.viewer), never an editor or owner below act. Create a JSON key for it and put it into a Secret of the Environment.'
+tools:
+- id: gcloud
+  version: 586.0.0
+  summary: The Google Cloud CLI (gcloud, gsutil, bq) and gke-gcloud-auth-plugin, for GKE kubeconfigs
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-586.0.0-linux-x86_64.tar.gz sha=6c774c76793eedd501150b59da653610fbe3eaac169e822965b722de75a2f001 ;; \
+          *) echo "gcloud: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/gcloud.dl "${url}"; \
+        echo "${sha}  /tmp/gcloud.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/gcloud.d; \
+        tar -xzf /tmp/gcloud.dl -C /tmp/gcloud.d; \
+        mkdir -p /opt; \
+        mv /tmp/gcloud.d/google-cloud-sdk /opt/google-cloud-sdk; \
+        ln -s /opt/google-cloud-sdk/bin/gcloud /usr/local/bin/gcloud; \
+        ln -s /opt/google-cloud-sdk/bin/gsutil /usr/local/bin/gsutil; \
+        ln -s /opt/google-cloud-sdk/bin/bq /usr/local/bin/bq; \
+        /opt/google-cloud-sdk/bin/gcloud components install gke-gcloud-auth-plugin --quiet; \
+        ln -s /opt/google-cloud-sdk/bin/gke-gcloud-auth-plugin /usr/local/bin/gke-gcloud-auth-plugin; \
+        printf '%s\n' '[component_manager]' 'disable_update_check = true' '[core]' 'disable_usage_reporting = true' '[survey]' 'disable_prompts = true' > /opt/google-cloud-sdk/properties; \
+        rm -rf /tmp/gcloud.dl /tmp/gcloud.d
+  provides:
+  - binary: gcloud
+    version_command: gcloud --version
+  - binary: gsutil
+    version_command: gsutil version
+  - binary: bq
+    version_command: bq version
+  - binary: gke-gcloud-auth-plugin
+    version_command: gke-gcloud-auth-plugin --version
+  platforms:
+  - linux/amd64
+  notes: 'Apache-2.0. linux/amd64 only: that archive bundles its Python and the arm64 one does not. GKE kubeconfigs also need gke-gcloud-auth-plugin, which gcloud installs only from the network (gcloud components install); add it as a custom Tool from a pinned download. Checksums computed; the tar contents are identical to Google''s documented archives.'

@@ -1,0 +1,97 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: kubernetes
+version: 1.0.0
+summary: Kubernetes access with a kubeconfig, and the kubectl and helm CLIs
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- kubernetes
+authenticator_types:
+- authenticator_type: k8s.kubeconfig
+  version: 1
+  provider: k8s
+  summary: A kubeconfig delivered as a Secret, and the context to use from it, with whatever authentication the file uses
+  interactive: false
+  secrets:
+    kubeconfig:
+      as: file
+      path: kubeconfig
+      env: KUBECONFIG
+      join: ':'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - context
+    properties:
+      context:
+        type: string
+        minLength: 1
+        maxLength: 253
+        description: The context to use from the kubeconfig.
+  requires_tools:
+  - kubectl
+  usage: kubectl --context {params.context} (KUBECONFIG is set)
+  preflight:
+    authn:
+      run: kubectl --context {params.context} auth whoami -o json
+      expect:
+        json: $.status.userInfo.username
+      timeout: 20s
+    authz:
+      run: kubectl --context {params.context} auth can-i list pods -A
+      expect:
+        contains: 'yes'
+    authz_query:
+      prefix: kubectl --context {params.context} auth can-i
+      flags:
+      - -A
+      - --all-namespaces
+      - -n=
+      - --namespace=
+      - --subresource=
+      - -q
+      - --quiet
+  permissions_hint: 'Bind the kubeconfig''s user to a read-only ClusterRole: view plus pods/log and events; never pods/exec below act. Put the kubeconfig into a Secret of the Environment, or import it, which stores it as one.'
+tools:
+- id: kubectl
+  version: 1.37.1
+  summary: The Kubernetes CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://dl.k8s.io/release/v1.37.1/bin/linux/amd64/kubectl sha=65691ff77eb6fa44c908b77a1082c9f092c3b9733b5cefabec0d1104890e21a8 ;; \
+          arm64) url=https://dl.k8s.io/release/v1.37.1/bin/linux/arm64/kubectl sha=ff749f4b78d9c4f1ec87307df9b50119ed819e2094aa9810cb9acffc3286c8c7 ;; \
+          *) echo "kubectl: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/kubectl.dl "${url}"; \
+        echo "${sha}  /tmp/kubectl.dl" | sha256sum --check --strict -; \
+        install -m 0755 /tmp/kubectl.dl /usr/local/bin/kubectl; \
+        rm -f /tmp/kubectl.dl
+  provides:
+  - binary: kubectl
+    version_command: kubectl version --client
+  notes: 'Apache-2.0. Checksums: dl.k8s.io/release/v1.37.1/bin/linux/<arch>/kubectl.sha256.'
+- id: helm
+  version: 4.3.0
+  summary: The Kubernetes package manager
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) url=https://get.helm.sh/helm-v4.3.0-linux-amd64.tar.gz sha=86584a54def73570558f66f5111cc53dfed56689637ae32c1201205d494f54fb ;; \
+          arm64) url=https://get.helm.sh/helm-v4.3.0-linux-arm64.tar.gz sha=31c5794dd55c66a51e6b7d2e2ac7a114ae8b1de41ff1d9ba51748ac973b06a08 ;; \
+          *) echo "helm: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/helm.dl "${url}"; \
+        echo "${sha}  /tmp/helm.dl" | sha256sum --check --strict -; \
+        mkdir -p /tmp/helm.d; \
+        tar -xzf /tmp/helm.dl -C /tmp/helm.d; \
+        install -m 0755 /tmp/helm.d/linux-${TARGETARCH}/helm /usr/local/bin/helm; \
+        rm -rf /tmp/helm.dl /tmp/helm.d
+  provides:
+  - binary: helm
+    version_command: helm version --short
+  notes: 'Apache-2.0. Checksums: get.helm.sh/helm-v4.3.0-linux-<arch>.tar.gz.sha256sum.'

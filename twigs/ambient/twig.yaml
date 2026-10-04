@@ -1,0 +1,82 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: ambient
+version: 1.0.0
+summary: 'A platform identity the Runner already has: workload identity, an instance profile'
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- cloud
+authenticator_types:
+- authenticator_type: ambient
+  version: 1
+  provider: any
+  summary: 'A platform identity the Runner environment already has: IRSA or Pod Identity, an instance profile, workload identity, a Vault token the platform provides'
+  interactive: false
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - tool
+    properties:
+      tool:
+        type: string
+        enum:
+        - aws
+        - gcloud
+        - az
+        - vault
+        description: The CLI whose credential chain finds the identity.
+      profile:
+        type: string
+        pattern: ^[A-Za-z0-9_.-]{1,64}$
+        description: 'aws: the profile of the image''s ~/.aws/config (AWS_PROFILE).'
+  usage: '{params.tool}, with the Runner environment''s own identity'
+  preflight:
+    authn:
+      run: aws sts get-caller-identity --output json
+      expect:
+        json: $.Arn
+      timeout: 20s
+  variants:
+    by: tool
+    values:
+      aws:
+        requires_tools:
+        - aws
+        env:
+          AWS_PROFILE: '{params.profile}'
+        preflight:
+          authn:
+            run: aws sts get-caller-identity --output json
+            expect:
+              json: $.Arn
+            timeout: 20s
+      gcloud:
+        requires_tools:
+        - gcloud
+        preflight:
+          authn:
+            run: gcloud auth list --filter=status:ACTIVE --format=json
+            expect:
+              json: $[0].account
+            timeout: 20s
+      az:
+        requires_tools:
+        - az
+        preflight:
+          authn:
+            run: az account show --output json
+            expect:
+              json: $.user.name
+            timeout: 30s
+      vault:
+        requires_tools:
+        - vault
+        preflight:
+          authn:
+            run: vault token lookup -format=json
+            expect:
+              json: $.data.accessor
+            timeout: 20s
+  permissions_hint: Give the Runner's Pod, VM, or instance a read-only identity (a role bound to ReadOnlyAccess, a Kubernetes view binding for its ServiceAccount, a Vault policy with read capabilities); the Credential names nothing secret.

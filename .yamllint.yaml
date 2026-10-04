@@ -1,0 +1,16 @@
+# yamllint (make lint): the house style of every YAML file here.
+extends: default
+ignore: |
+  .git/
+rules:
+  # Install fragments and summaries are long by nature.
+  line-length: disable
+  document-start: disable
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false
+  comments:
+    min-spaces-from-content: 1
+  indentation:
+    spaces: 2
+    indent-sequences: whatever
