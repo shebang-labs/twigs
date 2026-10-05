@@ -36,7 +36,7 @@ Nothing is built into a Hub: every Hub installs [`core`](twigs/core/twig.yaml) f
 | [logcli](twigs/logcli/twig.yaml) | 1.0.1 | Grafana Loki's logcli, to query logs with LogQL | Tools: `logcli` |
 | [memcached](twigs/memcached/twig.yaml) | 1.0.0 | memcached's command-line tools | Tools: `memcached-tools` |
 | [mysql](twigs/mysql/twig.yaml) | 1.0.1 | MySQL and MariaDB access, read-only, with the mariadb client | Credential types: `mysql.password`; Tools: `mariadb-client` |
-| [network](twigs/network/twig.yaml) | 1.0.0 | Hop kinds to reach Targets: TCP, DNS, an SSH jump host, a private CA, a binary on the Runner | Hop kinds: `net.tcp`, `net.dns`, `net.ssh_proxyjump`, `net.private_ca`, `tool.binary` |
+| [network](twigs/network/twig.yaml) | 1.0.1 | Hop kinds to reach Targets: TCP, DNS, an SSH jump host, a private CA, a binary on the Runner | Hop kinds: `net.tcp`, `net.dns`, `net.ssh_proxyjump`, `net.private_ca`, `tool.binary` |
 | [opencode](twigs/opencode/twig.yaml) | 1.1.1 | OpenCode as an investigating agent, driven over the Agent Client Protocol (any model provider) | Tools: `opencode`; Agents: `opencode` |
 | [ops-essentials](twigs/ops-essentials/twig.yaml) | 1.0.1 | The Twigs most teams start with, installed in one go | a bundle of [argocd](twigs/argocd/twig.yaml), [logcli](twigs/logcli/twig.yaml), [mysql](twigs/mysql/twig.yaml), [ssh](twigs/ssh/twig.yaml) |
 | [postgres](twigs/postgres/twig.yaml) | 1.0.0 | PostgreSQL access with a password, and psql | Credential types: `postgres.password`; Tools: `psql` |
