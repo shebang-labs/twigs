@@ -133,8 +133,8 @@
     },
     {
       "name": "core",
-      "version": "1.0.0",
-      "summary": "What every Hub starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code",
+      "version": "1.0.1",
+      "summary": "What every Nest starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code",
       "publisher": "Twig Nest project",
       "tags": [
         "bundle"
@@ -151,7 +151,7 @@
         "claude-code"
       ],
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/core/twig.yaml",
-      "sha256": "ef7e5402d3b61267f50f3f2425eadcdac3ce8eca0f8028d4d9445462b33df140"
+      "sha256": "ead949719b6eb23261e23c5e5aea69aca5e6699a4537182ab379bfbbf3b7f569"
     },
     {
       "name": "gcp",
@@ -340,7 +340,7 @@
     },
     {
       "name": "ops-essentials",
-      "version": "1.0.1",
+      "version": "1.0.2",
       "summary": "The Twigs most teams start with, installed in one go",
       "publisher": "Twig Nest project",
       "tags": [
@@ -354,7 +354,7 @@
         "ssh"
       ],
       "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ops-essentials/twig.yaml",
-      "sha256": "92dd24e5b1a2adc9e56a3925783cefbc5fcd129bfe6904a66b5f7b782c37eca4"
+      "sha256": "095be70c7c450f96f524d2c0286a0b9fb4f27a6967bca675f4a68309ac136129"
     },
     {
       "name": "postgres",
