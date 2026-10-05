@@ -49,7 +49,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # A merge that lands meanwhile rejects the push: index again on it.
-          for attempt in 1 2 3; do
+          for _ in 1 2 3; do
             make index
             if git diff --quiet -- catalog.json README.md; then
               echo "catalog.json and README.md are current"
