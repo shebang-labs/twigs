@@ -29,7 +29,7 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md). To report a security pr
 
    ```sh
    make check                        # every Twig, and the checker's tests
-   make check BASE=upstream/main     # also: a changed Twig raised its version (in a fork: git remote add upstream https://github.com/shebang-labs/twigs.git && git fetch upstream)
+   make check BASE=upstream/main     # also: a changed Twig raised its version (in a fork: git remote add upstream https://github.com/twig-nest/twigs.git && git fetch upstream)
    make lint                         # yamllint and actionlint
    ```
 
@@ -67,7 +67,7 @@ To change a Twig, edit its file, raise its `version` (a fix or a comment is a pa
 
 ## Where to start
 
-Issues labeled [good first issue](https://github.com/shebang-labs/twigs/labels/good%20first%20issue) and [new twig](https://github.com/shebang-labs/twigs/labels/new%20twig) are a good start: a requested CLI is usually one Tool, and `terraform` or `vault` show the whole pattern.
+Issues labeled [good first issue](https://github.com/twig-nest/twigs/labels/good%20first%20issue) and [new twig](https://github.com/twig-nest/twigs/labels/new%20twig) are a good start: a requested CLI is usually one Tool, and `terraform` or `vault` show the whole pattern.
 
 ## How changes are reviewed
 

@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Report it privately through [GitHub's private vulnerability reporting](https://github.com/shebang-labs/twigs/security/advisories/new) (the Security tab, "Report a vulnerability"). Do not open a public issue or pull request for it.
+Report it privately through [GitHub's private vulnerability reporting](https://github.com/twig-nest/twigs/security/advisories/new) (the Security tab, "Report a vulnerability"). Do not open a public issue or pull request for it.
 
 Say which Twig and version, what an attacker could do, and how to reproduce it. A maintainer answers within three working days, keeps you informed, and credits you in the advisory unless you ask otherwise.
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/tool.json",
+  "$id": "https://raw.githubusercontent.com/twig-nest/twigs/main/schema/tool.json",
   "title": "Tool",
   "description": "A tool (a CLI, a client, an agent runtime) Forge knows how to install into an Image: a version, a Dockerfile fragment that installs it from a pinned, checksummed source, and the binaries it puts on PATH. Twigs provide them (the Catalog), and an admin adds others. A fragment carries no secret and no Environment-specific configuration: the Job's Secrets configure the tools at run time.",
   "type": "object",

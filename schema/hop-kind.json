@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/hop-kind.json",
+  "$id": "https://raw.githubusercontent.com/twig-nest/twigs/main/schema/hop-kind.json",
   "title": "HopKind",
   "description": "A manifest for a kind of Hop, like an Authenticator type: a parameter schema, a built-in check with an expected result, a remedy, the destinations it needs, and the environment it sets. A kind that joins a network for a Job also declares secret slots, files, up steps, a ready check, and down commands: the Runner starts up as child processes in the Job's process group, in the Hop's directory under the Job's working directory, with the slots written there, retries ready until it passes, exports env to the checks after it and to the work, and stops everything at finalize. Twigs provide them; nothing is built in.",
   "type": "object",

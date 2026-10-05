@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json",
+  "$id": "https://raw.githubusercontent.com/twig-nest/twigs/main/schema/twig.json",
   "title": "Twig",
   "description": "A Twig: Credential types, Hop kinds, Tools, and Agents a Nest installs at run time, from a body or from a URL with its SHA-256 (the Catalog). A Twig may require other Twigs, which the Nest installs first from its Catalog; a Twig of requires alone installs a set of Twigs in one go.",
   "type": "object",

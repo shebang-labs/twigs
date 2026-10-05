@@ -3,7 +3,7 @@
 A Twig is a YAML file at `twigs/<name>/twig.yaml`. [`schema/twig.json`](../schema/twig.json) is its JSON Schema (draft 2020-12), with the schemas of the items it provides beside it; this page explains the fields, and the schemas have the exact rules and every description.
 
 ```yaml
-# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/twig-nest/twigs/main/schema/twig.json
 twig: twig-nest/twig/v1      # the format, always this
 name: mytool                 # the directory's name
 version: 1.0.0               # raise it on every change
