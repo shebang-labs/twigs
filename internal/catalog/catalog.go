@@ -27,11 +27,11 @@ import (
 const (
 	// SchemaBase is where schema/ is published; every schema's $id starts
 	// with it, so editors and validators resolve the references there.
-	SchemaBase = "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/"
+	SchemaBase = "https://raw.githubusercontent.com/twig-nest/twigs/main/schema/"
 	// RawBase is where a Nest fetches the Twig files catalog.json names.
-	RawBase = "https://raw.githubusercontent.com/shebang-labs/twigs/main/"
+	RawBase = "https://raw.githubusercontent.com/twig-nest/twigs/main/"
 	// Homepage is the Catalog's page.
-	Homepage = "https://github.com/shebang-labs/twigs"
+	Homepage = "https://github.com/twig-nest/twigs"
 	// IndexFile is the index a Nest reads.
 	IndexFile = "catalog.json"
 	// Core is the Twig every Nest installs at start.

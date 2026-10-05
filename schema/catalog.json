@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/catalog.json",
+  "$id": "https://raw.githubusercontent.com/twig-nest/twigs/main/schema/catalog.json",
   "title": "Catalog",
   "description": "A Catalog index: the Twigs a git repository publishes, each with the URL of its file and its SHA-256.",
   "type": "object",

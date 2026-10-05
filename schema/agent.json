@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/agent.json",
+  "$id": "https://raw.githubusercontent.com/twig-nest/twigs/main/schema/agent.json",
   "title": "Agent",
   "description": "An agent CLI the Runner can run for an agent Job, as data: its binary and arguments, which start it speaking the Agent Client Protocol on stdio, what its ACP adapter needs, the context files it reads, and the variables that hold its model key. Twigs provide them (the Catalog), and an admin adds any other ACP agent.",
   "type": "object",

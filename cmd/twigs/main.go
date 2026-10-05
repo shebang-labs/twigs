@@ -25,7 +25,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/shebang-labs/twigs/internal/catalog"
+	"github.com/twig-nest/twigs/internal/catalog"
 )
 
 func main() {
@@ -212,7 +212,7 @@ func newTwig(args []string, stdout io.Writer) error {
 	return nil
 }
 
-const template = `# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+const template = `# yaml-language-server: $schema=https://raw.githubusercontent.com/twig-nest/twigs/main/schema/twig.json
 twig: twig-nest/twig/v1
 name: NAME
 version: 1.0.0

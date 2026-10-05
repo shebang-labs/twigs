@@ -1,4 +1,4 @@
-module github.com/shebang-labs/twigs
+module github.com/twig-nest/twigs
 
 go 1.27.1
 
