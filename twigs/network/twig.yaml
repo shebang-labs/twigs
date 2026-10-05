@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
 twig: twig-nest/twig/v1
 name: network
-version: 1.0.0
+version: 1.0.1
 summary: 'Hop kinds to reach Targets: TCP, DNS, an SSH jump host, a private CA, a binary on the Runner'
 publisher: Twig Nest project
 license: Apache-2.0
@@ -149,7 +149,7 @@ hop_kinds:
           HTTPS_PROXY: socks5://127.0.0.1:{hop.port1}
           NO_PROXY: localhost,127.0.0.1,::1
 - type: net.private_ca
-  version: 4
+  version: 5
   summary: Trust a private CA for TLS to a Target
   params:
     type: object
@@ -174,9 +174,12 @@ hop_kinds:
         pattern: ^-----BEGIN CERTIFICATE-----
         description: The CA certificate, public by definition.
   preflight:
-    run: openssl s_client -connect {params.host}:{params.port} -CAfile {ca_file} -verify_return_error
+    # -brief prints a few lines (the protocol, the peer, Verification: OK) instead of the whole
+    # chain and session; -verify_return_error fails the handshake, and the exit status, when the
+    # certificate does not chain to ca_pem.
+    run: openssl s_client -brief -connect {params.host}:{params.port} -CAfile {ca_file} -verify_return_error
     expect:
-      contains: 'Verify return code: 0 (ok)'
+      exit_code: 0
     timeout: 10s
   remedy:
     kind: human
