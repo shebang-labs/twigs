@@ -1,7 +1,7 @@
 {
   "catalog": "twig-nest/catalog/v1",
   "name": "Twigs",
-  "homepage": "https://github.com/shebang-labs/twigs",
+  "homepage": "https://github.com/twig-nest/twigs",
   "twigs": [
     {
       "name": "ambient",
@@ -16,7 +16,7 @@
           "ambient"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ambient/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/ambient/twig.yaml",
       "sha256": "09cb46fbd37aac622697c4d3afa58b51b51d7ff912322c121db087b76679373c"
     },
     {
@@ -33,7 +33,7 @@
           "argocd"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/argocd/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/argocd/twig.yaml",
       "sha256": "9aa20b73088ed1dd4d9d26f736e5f70aed23d730a28ab751da6c262a3c9e4625"
     },
     {
@@ -53,7 +53,7 @@
           "aws"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/aws/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/aws/twig.yaml",
       "sha256": "dd625126b3f37747ff11b93b247c053551d8975d8f2ca00433b6059cce9a4700"
     },
     {
@@ -70,7 +70,7 @@
           "az"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/azure/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/azure/twig.yaml",
       "sha256": "bbc7cb5588b5c52bb984039a4855fbe8eaa386767f671d5fc1cbcad4d8980ca1"
     },
     {
@@ -86,7 +86,7 @@
           "buildctl"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/buildkit/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/buildkit/twig.yaml",
       "sha256": "bb254bd4cc7196ea550b095bd871b5c6580bfafbdafa7ca2d7b2e3a506862710"
     },
     {
@@ -107,7 +107,7 @@
           "claude-agent-acp"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/claude-code/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/claude-code/twig.yaml",
       "sha256": "61f72ed40c1602d95bdc174354e5b7ef5fd3ed8e81951a9aaf0107d6393c52fc"
     },
     {
@@ -128,7 +128,7 @@
           "codex-acp"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/codex/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/codex/twig.yaml",
       "sha256": "05fc5cb6192001c461469d1051bf41506920d381a91024f67ad3fab27b40525d"
     },
     {
@@ -150,7 +150,7 @@
         "ambient",
         "claude-code"
       ],
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/core/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/core/twig.yaml",
       "sha256": "ead949719b6eb23261e23c5e5aea69aca5e6699a4537182ab379bfbbf3b7f569"
     },
     {
@@ -170,7 +170,7 @@
           "gcloud"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/gcp/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/gcp/twig.yaml",
       "sha256": "feba398732495b13424e7dc0e09556c6c30b2a533e540d9e3bf05b045e0aea17"
     },
     {
@@ -190,7 +190,7 @@
           "gh"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/github/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/github/twig.yaml",
       "sha256": "dcf46fe6c19f0d82b0f7fc36798784d40b575e6e721b16ed4ac3296cce6d3563"
     },
     {
@@ -207,7 +207,7 @@
           "gitlab.token"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/gitlab/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/gitlab/twig.yaml",
       "sha256": "7dabe6fcb25efb56eb0f4988ec9a07801fbbc11be399abb15f040747f4cbdc92"
     },
     {
@@ -223,7 +223,7 @@
           "http.api_key"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/http/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/http/twig.yaml",
       "sha256": "6bffe587a9b3853b3a179e9bc8b0a7d6d789ff3a5e095707d7a06c1a44842112"
     },
     {
@@ -243,7 +243,7 @@
           "helm"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/kubernetes/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/kubernetes/twig.yaml",
       "sha256": "bcfc6918e5c2da34c85c2187b098fb2e5446cbfa157ebbee5ccd0c2f40974069"
     },
     {
@@ -260,7 +260,7 @@
           "logcli"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/logcli/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/logcli/twig.yaml",
       "sha256": "6426fe0ac9013a5d0093dbf61fedee34e121b142c779b0e53f4e28ae33941747"
     },
     {
@@ -276,7 +276,7 @@
           "memcached-tools"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/memcached/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/memcached/twig.yaml",
       "sha256": "4b60e94765eb69a9f3c513d1d1c5d4eecb5070ddc16bbdafcb0d5d6905611760"
     },
     {
@@ -295,7 +295,7 @@
           "mariadb-client"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/mysql/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/mysql/twig.yaml",
       "sha256": "f555359430e80d764480aedbf5fbdf94744dc88c485c6dca0880342bb1f09d00"
     },
     {
@@ -315,7 +315,7 @@
           "tool.binary"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/network/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/network/twig.yaml",
       "sha256": "b1ac7116aa30d0c636b4295d275ac5cc0616af8e39ceda70ae3b7ab44059228f"
     },
     {
@@ -335,7 +335,7 @@
           "opencode"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/opencode/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/opencode/twig.yaml",
       "sha256": "bd56212be8997b62b3469ca3771caf3dd0c2c3089f730357efe7b37c15cf77b7"
     },
     {
@@ -353,7 +353,7 @@
         "mysql",
         "ssh"
       ],
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ops-essentials/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/ops-essentials/twig.yaml",
       "sha256": "095be70c7c450f96f524d2c0286a0b9fb4f27a6967bca675f4a68309ac136129"
     },
     {
@@ -372,7 +372,7 @@
           "psql"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/postgres/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/postgres/twig.yaml",
       "sha256": "d76838d3ee1d8c854f40e018efca268e140f95d76b51e13cf8feebb7dff27636"
     },
     {
@@ -392,7 +392,7 @@
           "redis-cli"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/redis/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/redis/twig.yaml",
       "sha256": "26694a6a2233c5fe1ce5ea70fc506d5b76b9d5d667a61aa8532e77599a8795d8"
     },
     {
@@ -408,7 +408,7 @@
           "registry.docker_config"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/registry/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/registry/twig.yaml",
       "sha256": "d96ca75f1f697916848d917e3ad8523c9d941b9c38f964ef8bf97434b296466e"
     },
     {
@@ -424,7 +424,7 @@
           "ssh.key"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/ssh/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/ssh/twig.yaml",
       "sha256": "88bef707ccba8b540ee8e0b4e285248f70ed49ad406038d620047ea08225a94d"
     },
     {
@@ -444,7 +444,7 @@
           "tailscale"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/tailscale/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/tailscale/twig.yaml",
       "sha256": "bc5e9dd847c029c1cd1839039480acf675cb8d3841fc73b2e5355f1fb1a3d5b9"
     },
     {
@@ -460,7 +460,7 @@
           "terraform"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/terraform/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/terraform/twig.yaml",
       "sha256": "cceec09e1aeaf8ff650ba0749bf1aef7a08c4b2f34a3e8fa44891ff68de64856"
     },
     {
@@ -476,7 +476,7 @@
           "vault"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/vault/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/vault/twig.yaml",
       "sha256": "88cc105a76eb11b0cf0e75dd1f48f476b4acc34f35f3f5b9b86f8aedf2f2e506"
     },
     {
@@ -497,7 +497,7 @@
           "wireproxy"
         ]
       },
-      "url": "https://raw.githubusercontent.com/shebang-labs/twigs/main/twigs/wireguard/twig.yaml",
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/wireguard/twig.yaml",
       "sha256": "b1ce2312018ad4a37c66f4cccf8ac2f8ca8f773f12d49ae969d2eb8331d4caa5"
     }
   ]
