@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
-# A bundle: it only requires other Twigs, which a Hub installs with it from its Catalog.
+# A bundle: it only requires other Twigs, which a Nest installs with it from its Catalog.
 twig: twig-nest/twig/v1
 name: ops-essentials
-version: 1.0.1
+version: 1.0.2
 summary: The Twigs most teams start with, installed in one go
 publisher: Twig Nest project
 license: Apache-2.0

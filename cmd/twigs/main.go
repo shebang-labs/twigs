@@ -216,7 +216,7 @@ const template = `# yaml-language-server: $schema=https://raw.githubusercontent.
 twig: twig-nest/twig/v1
 name: NAME
 version: 1.0.0
-summary: One line on what NAME adds to a Hub
+summary: One line on what NAME adds to a Nest
 publisher: Your name or organization
 homepage: https://example.com/the-project-it-wraps
 license: Apache-2.0

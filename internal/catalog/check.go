@@ -18,8 +18,8 @@ import (
 	"golang.org/x/text/message"
 )
 
-// Check runs every check a Twig must pass before a Hub is offered it, the
-// ones a Hub runs on install among them, and returns what fails.
+// Check runs every check a Twig must pass before a Nest is offered it, the
+// ones a Nest runs on install among them, and returns what fails.
 func (c *Catalog) Check() []Problem {
 	var ps []Problem
 	// Where each name is provided: a name belongs to one place.
@@ -63,7 +63,7 @@ func (c *Catalog) Check() []Problem {
 	ps = append(ps, c.checkRequires()...)
 	ps = append(ps, c.checkAgentTools()...)
 	if _, ok := c.Get(Core); !ok && !c.hasDir(Core) {
-		ps = append(ps, Problem{File: "twigs/" + Core, Message: "there is no core Twig, which every Hub installs at start"})
+		ps = append(ps, Problem{File: "twigs/" + Core, Message: "there is no core Twig, which every Nest installs at start"})
 	}
 	return ps
 }
@@ -217,13 +217,13 @@ func (c *Catalog) checkAgentTools() []Problem {
 }
 
 // toolInstructions are the Dockerfile instructions a Tool's fragment may
-// hold; the Hub's renderer owns FROM, USER, and ENTRYPOINT.
+// hold; the Nest's renderer owns FROM, USER, and ENTRYPOINT.
 var toolInstructions = map[string]bool{"RUN": true, "COPY": true, "ENV": true, "ARG": true, "WORKDIR": true}
 
 // pinnedCopyFrom is COPY --from=<image>@sha256:<digest>.
 var pinnedCopyFrom = regexp.MustCompile(`^--from=[a-z0-9][a-z0-9._/:-]*@sha256:[a-f0-9]{64}$`)
 
-// toolRules are the Hub's rules for a Tool's install fragment: only the
+// toolRules are the Nest's rules for a Tool's install fragment: only the
 // allowed instructions, a COPY only from an image pinned by digest, no
 // build argument that looks like a secret, and one entry per binary.
 func toolRules(t *Twig) []Problem {
@@ -241,7 +241,7 @@ func toolRules(t *Twig) []Problem {
 			instr := strings.ToUpper(word)
 			switch {
 			case !toolInstructions[instr]:
-				ps = append(ps, Problem{t.File, at + "/install", fmt.Sprintf("instruction %d is %s; a fragment holds RUN, COPY --from=<image>@sha256:<digest>, ENV, ARG, and WORKDIR only (the Hub owns FROM, USER, and ENTRYPOINT)", k+1, word)})
+				ps = append(ps, Problem{t.File, at + "/install", fmt.Sprintf("instruction %d is %s; a fragment holds RUN, COPY --from=<image>@sha256:<digest>, ENV, ARG, and WORKDIR only (the Nest owns FROM, USER, and ENTRYPOINT)", k+1, word)})
 			case instr == "COPY":
 				from, _, _ := strings.Cut(strings.TrimSpace(rest), " ")
 				if !pinnedCopyFrom.MatchString(from) {
@@ -323,7 +323,7 @@ func agentRules(t *Twig) []Problem {
 
 // CheckVersions compares each Twig with its file at a base (the base
 // branch of a pull request): a changed file must raise its version, since
-// a Hub installs a file by its digest and offers a newer version as an
+// a Nest installs a file by its digest and offers a newer version as an
 // upgrade. base maps a file to its content at the base, absent when new.
 func (c *Catalog) CheckVersions(base map[string][]byte) []Problem {
 	var ps []Problem
@@ -340,7 +340,7 @@ func (c *Catalog) CheckVersions(base map[string][]byte) []Problem {
 		prev, _ := was["version"].(string)
 		switch cur := t.Str("version"); Compare(prev, cur) {
 		case 0:
-			ps = append(ps, Problem{t.File, "/version", fmt.Sprintf("is %s, as before the change; a changed Twig raises its version, so Hubs offer it as an upgrade", cur)})
+			ps = append(ps, Problem{t.File, "/version", fmt.Sprintf("is %s, as before the change; a changed Twig raises its version, so Nests offer it as an upgrade", cur)})
 		case 1:
 			ps = append(ps, Problem{t.File, "/version", fmt.Sprintf("went down from %s to %s; a changed Twig raises its version", prev, cur)})
 		}

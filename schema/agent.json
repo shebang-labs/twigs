@@ -15,7 +15,7 @@
       "$ref": "#/$defs/EntityID"
     },
     "rev": {
-      "description": "Current revision number, assigned by the Hub.",
+      "description": "Current revision number, assigned by the Nest.",
       "type": "integer",
       "minimum": 1,
       "readOnly": true

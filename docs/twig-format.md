@@ -25,13 +25,13 @@ A Twig with only `requires` is a **bundle**: installing it installs the set ([`c
 
 ## Tools
 
-A Tool is a CLI that Forge, the Hub's image builder, installs into the images agents run in ([schema](../schema/tool.json)).
+A Tool is a CLI that Forge, the Nest's image builder, installs into the images agents run in ([schema](../schema/tool.json)).
 
 | Field | Required | What it is |
 |---|---|---|
 | `id` | yes | The Tool's name, as Images list it (`kubectl`). |
 | `version` | yes | The version the fragment installs. |
-| `install` | yes | Dockerfile instructions run after the Hub's `FROM`, as root: `RUN`, `ARG`, `ENV`, `WORKDIR`, and `COPY --from=<image>@sha256:<digest>`. `ARG TARGETARCH` is set to `amd64` or `arm64`. |
+| `install` | yes | Dockerfile instructions run after the Nest's `FROM`, as root: `RUN`, `ARG`, `ENV`, `WORKDIR`, and `COPY --from=<image>@sha256:<digest>`. `ARG TARGETARCH` is set to `amd64` or `arm64`. |
 | `provides` | yes | Each binary it puts on `PATH`, with the `version_command` that prints its version. |
 | `summary` | | One line. |
 | `platforms` | | The platforms it supports; both by default. |
@@ -39,7 +39,7 @@ A Tool is a CLI that Forge, the Hub's image builder, installs into the images ag
 
 ## Credential types
 
-A Credential type says how a kind of credential reaches a Job and how to prove it works ([schema](../schema/credential-type.json)). An admin creates Credentials of the type; their values are Secrets the Hub keeps and sends with each Job.
+A Credential type says how a kind of credential reaches a Job and how to prove it works ([schema](../schema/credential-type.json)). An admin creates Credentials of the type; their values are Secrets the Nest keeps and sends with each Job.
 
 | Field | Required | What it is |
 |---|---|---|
@@ -94,4 +94,4 @@ An Agent is an agent CLI the Runner starts for an agent Job, speaking the [Agent
 
 ## The index
 
-`catalog.json` lists every Twig with its summary, what it provides, what it requires, the URL of its file, and the file's SHA-256 ([schema](../schema/catalog.json)). A Hub reads it, and installs a Twig only when the file still has that digest. `make index` writes it, and the index workflow runs it after every merge.
+`catalog.json` lists every Twig with its summary, what it provides, what it requires, the URL of its file, and the file's SHA-256 ([schema](../schema/catalog.json)). A Nest reads it, and installs a Twig only when the file still has that digest. `make index` writes it, and the index workflow runs it after every merge.

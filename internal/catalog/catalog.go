@@ -2,7 +2,7 @@
 
 // Package catalog reads, checks, and indexes the Twigs of this repository:
 // one Twig per twigs/<name>/twig.yaml, validated against the JSON Schemas in
-// schema/, and catalog.json, the index a Twig Nest Hub reads.
+// schema/, and catalog.json, the index a Twig Nest reads.
 package catalog
 
 import (
@@ -28,13 +28,13 @@ const (
 	// SchemaBase is where schema/ is published; every schema's $id starts
 	// with it, so editors and validators resolve the references there.
 	SchemaBase = "https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/"
-	// RawBase is where a Hub fetches the Twig files catalog.json names.
+	// RawBase is where a Nest fetches the Twig files catalog.json names.
 	RawBase = "https://raw.githubusercontent.com/shebang-labs/twigs/main/"
 	// Homepage is the Catalog's page.
 	Homepage = "https://github.com/shebang-labs/twigs"
-	// IndexFile is the index a Hub reads.
+	// IndexFile is the index a Nest reads.
 	IndexFile = "catalog.json"
-	// Core is the Twig every Hub installs at start.
+	// Core is the Twig every Nest installs at start.
 	Core = "core"
 )
 

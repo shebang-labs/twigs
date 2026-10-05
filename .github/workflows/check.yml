@@ -1,6 +1,6 @@
 # check: every pull request, merge queue entry, and push to main runs make
 # check and make lint: the checker's tests; every Twig against the schemas
-# and the checks a Hub runs on install; against the base branch, a version
+# and the checks a Nest runs on install; against the base branch, a version
 # bump for every changed Twig and no hand-made catalog.json; yamllint; and
 # actionlint. Problems show as annotations on the pull request's files.
 name: check

@@ -1,5 +1,5 @@
 name: A Twig does not work
-description: A Twig fails to install, build, or check on a Hub, or is out of date.
+description: A Twig fails to install, build, or check on a Nest, or is out of date.
 labels: ["bug"]
 body:
   - type: input
@@ -17,9 +17,9 @@ body:
     validations:
       required: true
   - type: input
-    id: hub
+    id: nest
     attributes:
-      label: Hub version
+      label: Nest version
       description: In the console, under Settings.
   - type: input
     id: arch

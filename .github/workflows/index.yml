@@ -1,4 +1,4 @@
-# index: after a merge, rewrites catalog.json (the index every Hub reads)
+# index: after a merge, rewrites catalog.json (the index every Nest reads)
 # and the README's table of Twigs from twigs/, and commits them, so a
 # contributor never edits either. main takes changes only through reviewed
 # pull requests; this workflow pushes with the INDEX_DEPLOY_KEY secret, a

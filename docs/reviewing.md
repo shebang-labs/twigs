@@ -1,6 +1,6 @@
 # Reviewing a Twig
 
-A Twig's commands run on other teams' Runners, next to their credentials. Review a pull request as you would a Dockerfile someone asks you to run in production. CI has already checked the format and the rules a Hub enforces; this list is what a person checks.
+A Twig's commands run on other teams' Runners, next to their credentials. Review a pull request as you would a Dockerfile someone asks you to run in production. CI has already checked the format and the rules a Nest enforces; this list is what a person checks.
 
 ## Every Twig
 
@@ -20,7 +20,7 @@ A Twig's commands run on other teams' Runners, next to their credentials. Review
 
 - [ ] `preflight.authn` only proves the login: no write, and a timeout.
 - [ ] `permissions_hint` gives the least privilege that reads, and says what counts as write.
-- [ ] `authz` (when the provider can answer "may I?") asks about a write action, so a Hub can verify the credential is read-only.
+- [ ] `authz` (when the provider can answer "may I?") asks about a write action, so a Nest can verify the credential is read-only.
 - [ ] Secrets are delivered as files or variables the tool reads, never on a command line or in a URL.
 - [ ] `usage` and `guide` are correct and never tell an agent to turn off a safety check (host key checking, TLS verification).
 
@@ -34,4 +34,4 @@ A Twig's commands run on other teams' Runners, next to their credentials. Review
 - [ ] The binary comes from the Twig's Tool, and the arguments start the agent on ACP without a shell.
 - [ ] `key_env` and `pass_env` list only what the agent needs.
 
-When in doubt, ask in the pull request. Merging squashes the commits, and the index workflow publishes the Twig to every Hub within minutes.
+When in doubt, ask in the pull request. Merging squashes the commits, and the index workflow publishes the Twig to every Nest within minutes.

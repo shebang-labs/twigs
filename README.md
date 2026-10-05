@@ -5,14 +5,14 @@
 
 The public catalog of **Twigs** for Twig Nest, the platform that runs AI agents inside a team's own infrastructure to investigate and fix incidents.
 
-A Twig is one YAML file that teaches a Twig Nest Hub something new, as data:
+A Twig is one YAML file that teaches a Twig Nest something new, as data:
 
 - **Credential types**: how a kind of credential (a kubeconfig, an API key, an SSH key) is delivered to a Job, and the checks that prove it logs in and is read-only;
 - **Hop kinds**: how a Job reaches a network (a TCP port, a tailnet, a jump host);
 - **Tools**: a CLI installed into the images agents run in, from a pinned, checksummed download;
 - **Agents**: an agent CLI that speaks the [Agent Client Protocol](https://agentclientprotocol.com) (Claude Code, Codex, OpenCode).
 
-Nothing is built into a Hub: every Hub installs [`core`](twigs/core/twig.yaml) from this catalog at its first start, and an admin installs any other Twig from the Hub's Twigs page in one click. No platform release is needed to add one, so if a tool your team uses is missing, [add it](CONTRIBUTING.md).
+Nothing is built into a Nest: every Nest installs [`core`](twigs/core/twig.yaml) from this catalog at its first start, and an admin installs any other Twig from the Nest's Twigs page in one click. No platform release is needed to add one, so if a tool your team uses is missing, [add it](CONTRIBUTING.md).
 
 ## The Twigs
 
@@ -27,7 +27,7 @@ Nothing is built into a Hub: every Hub installs [`core`](twigs/core/twig.yaml) f
 | [buildkit](twigs/buildkit/twig.yaml) | 1.0.0 | BuildKit's buildctl, to build images from a Runner | Tools: `buildctl` |
 | [claude-code](twigs/claude-code/twig.yaml) | 1.0.0 | Claude Code as an agent, over the Agent Client Protocol | Tools: `claude-code`, `claude-agent-acp`; Agents: `claude-code` |
 | [codex](twigs/codex/twig.yaml) | 1.0.0 | Codex CLI as an agent, over the Agent Client Protocol | Tools: `codex`, `codex-acp`; Agents: `codex` |
-| [core](twigs/core/twig.yaml) | 1.0.0 | What every Hub starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code | a bundle of [kubernetes](twigs/kubernetes/twig.yaml), [http](twigs/http/twig.yaml), [github](twigs/github/twig.yaml), [gitlab](twigs/gitlab/twig.yaml), [registry](twigs/registry/twig.yaml), [network](twigs/network/twig.yaml), [ambient](twigs/ambient/twig.yaml), [claude-code](twigs/claude-code/twig.yaml) |
+| [core](twigs/core/twig.yaml) | 1.0.0 | What every Nest starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code | a bundle of [kubernetes](twigs/kubernetes/twig.yaml), [http](twigs/http/twig.yaml), [github](twigs/github/twig.yaml), [gitlab](twigs/gitlab/twig.yaml), [registry](twigs/registry/twig.yaml), [network](twigs/network/twig.yaml), [ambient](twigs/ambient/twig.yaml), [claude-code](twigs/claude-code/twig.yaml) |
 | [gcp](twigs/gcp/twig.yaml) | 1.0.0 | Google Cloud access with a service account, and the gcloud CLI | Credential types: `gcp.service_account`; Tools: `gcloud` |
 | [github](twigs/github/twig.yaml) | 1.0.0 | GitHub access with a token, for git and the gh CLI | Credential types: `github.token`; Tools: `gh` |
 | [gitlab](twigs/gitlab/twig.yaml) | 1.0.0 | GitLab access with a token, for git | Credential types: `gitlab.token` |
@@ -52,7 +52,7 @@ Nothing is built into a Hub: every Hub installs [`core`](twigs/core/twig.yaml) f
 
 ## Using the catalog
 
-A Hub reads [`catalog.json`](catalog.json), the index of every Twig with the URL and SHA-256 of its file; it installs a Twig only when the file still has that digest. A Hub reads this catalog by default. To use another, a fork or an internal mirror for a Hub that cannot reach GitHub, deploy the Hub with `TWIG_NEST_CATALOG_URL` set to its `catalog.json` (`hub.catalogURL` in the Helm chart), or set the Catalog URL in the console's Settings.
+A Nest reads [`catalog.json`](catalog.json), the index of every Twig with the URL and SHA-256 of its file; it installs a Twig only when the file still has that digest. A Nest reads this catalog by default. To use another, a fork or an internal mirror for a Nest that cannot reach GitHub, deploy the Nest with `TWIG_NEST_CATALOG_URL` set to its `catalog.json` (`hub.catalogURL` in the Helm chart), or set the Catalog URL in the console's Settings.
 
 ## Writing a Twig
 
@@ -65,7 +65,7 @@ make check             # every check CI runs on a pull request
 
 ## Trust
 
-A Twig's commands run on a team's Runners: a Tool's install step when an image is built, a Credential type's checks and a Hop kind's commands in Jobs. Every change is reviewed as you would review a Dockerfile ([docs/reviewing.md](docs/reviewing.md)), downloads are pinned by checksum, and a Hub shows an admin everything a Twig provides and every command it runs before it is installed. Report a vulnerability as [SECURITY.md](SECURITY.md) describes.
+A Twig's commands run on a team's Runners: a Tool's install step when an image is built, a Credential type's checks and a Hop kind's commands in Jobs. Every change is reviewed as you would review a Dockerfile ([docs/reviewing.md](docs/reviewing.md)), downloads are pinned by checksum, and a Nest shows an admin everything a Twig provides and every command it runs before it is installed. Report a vulnerability as [SECURITY.md](SECURITY.md) describes.
 
 ## License
 

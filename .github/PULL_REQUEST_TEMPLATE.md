@@ -14,4 +14,4 @@
 
 ### How I tested it
 
-<!-- On a Hub, if you have one: installed it (dry run is fine), built an Image with its Tools, ran preflight with its Credential type. -->
+<!-- On a Nest, if you have one: installed it (dry run is fine), built an Image with its Tools, ran preflight with its Credential type. -->

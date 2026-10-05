@@ -63,7 +63,7 @@
       }
     },
     "requires_capabilities": {
-      "description": "Runner capabilities the Hop needs (net_admin for a kernel-mode network): the Hub adds them to the requirements of every Job on a Route through the Hop.",
+      "description": "Runner capabilities the Hop needs (net_admin for a kernel-mode network): the Nest adds them to the requirements of every Job on a Route through the Hop.",
       "type": "array",
       "uniqueItems": true,
       "items": {
@@ -352,7 +352,7 @@
     },
     "ParamsSchema": {
       "title": "ParamsSchema",
-      "description": "A JSON Schema (2020-12) for an object of parameters, as a Hop kind or Authenticator type manifest declares it. The Hub validates params with it.",
+      "description": "A JSON Schema (2020-12) for an object of parameters, as a Hop kind or Authenticator type manifest declares it. The Nest validates params with it.",
       "type": "object",
       "additionalProperties": true,
       "if": {
@@ -406,7 +406,7 @@
     },
     "RunnerCapability": {
       "title": "RunnerCapability",
-      "description": "What a Runner can do beyond running exec and preflight Jobs, which it reports to the Hub and a Job may require. build: its config names a BuildKit endpoint, so it is Forge and leases build Jobs. net_admin: it holds CAP_NET_ADMIN and passes it to its Jobs, so a Hop can join a network in kernel mode.",
+      "description": "What a Runner can do beyond running exec and preflight Jobs, which it reports to the Nest and a Job may require. build: its config names a BuildKit endpoint, so it is Forge and leases build Jobs. net_admin: it holds CAP_NET_ADMIN and passes it to its Jobs, so a Hop can join a network in kernel mode.",
       "type": "string",
       "enum": [
         "build",
@@ -421,7 +421,7 @@
     },
     "SlotDefinition": {
       "title": "SlotDefinition",
-      "description": "One secret slot of an Authenticator type or Hop kind. as file: the Runner writes the value to \u003cwork\u003e/secrets/\u003cowner id\u003e/\u003cpath\u003e (mode 0600; path defaults to the slot's name), {secrets.\u003cslot\u003e} is that path, and env, when given, is set to the path (or its directory, with env_dir); as env: the value is set as the variable env, and has no placeholder. env may use {params.x}. join: when several Credentials of a Job set the same variable, their values are joined with it (KUBECONFIG ':'); without join the Hub refuses the Job. optional: a Credential may leave the slot unfilled.",
+      "description": "One secret slot of an Authenticator type or Hop kind. as file: the Runner writes the value to \u003cwork\u003e/secrets/\u003cowner id\u003e/\u003cpath\u003e (mode 0600; path defaults to the slot's name), {secrets.\u003cslot\u003e} is that path, and env, when given, is set to the path (or its directory, with env_dir); as env: the value is set as the variable env, and has no placeholder. env may use {params.x}. join: when several Credentials of a Job set the same variable, their values are joined with it (KUBECONFIG ':'); without join the Nest refuses the Job. optional: a Credential may leave the slot unfilled.",
       "type": "object",
       "additionalProperties": false,
       "required": [
