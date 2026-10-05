@@ -4,7 +4,7 @@
 //
 //	twigs check [-base REF]   check every Twig; with -base, also that a changed
 //	                          Twig raised its version since REF (a git ref)
-//	twigs index [-check]      write catalog.json and the README's table; with
+//	twigs index [-check]      write catalog.json; with
 //	                          -check, fail when they are not current instead
 //	twigs new NAME            start twigs/NAME/twig.yaml from a template
 //
@@ -42,7 +42,7 @@ var errReported = errors.New("reported")
 
 const usage = `usage:
   twigs check [-base REF]   check every Twig (and version bumps since REF)
-  twigs index [-check]      write catalog.json and the README's table
+  twigs index [-check]      write catalog.json
   twigs new NAME            start twigs/NAME/twig.yaml from a template
 `
 
@@ -143,7 +143,7 @@ func filesAt(ref string, c *catalog.Catalog) (map[string][]byte, error) {
 
 func index(args []string, stdout, stderr io.Writer) error {
 	fs := flag.NewFlagSet("index", flag.ContinueOnError)
-	only := fs.Bool("check", false, "fail when catalog.json or the README's table is not current, writing nothing")
+	only := fs.Bool("check", false, "fail when catalog.json is not current, writing nothing")
 	if err := fs.Parse(args); err != nil {
 		return errReported
 	}
@@ -158,19 +158,11 @@ func index(args []string, stdout, stderr io.Writer) error {
 	if err != nil {
 		return err
 	}
-	readme, err := os.ReadFile("README.md")
-	if err != nil {
-		return err
-	}
-	table, err := c.WithTable(readme)
-	if err != nil {
-		return err
-	}
 	stale := false
 	for _, f := range []struct {
 		name string
 		want []byte
-	}{{catalog.IndexFile, idx}, {"README.md", table}} {
+	}{{catalog.IndexFile, idx}} {
 		have, _ := os.ReadFile(f.name)
 		if bytes.Equal(have, f.want) {
 			continue

@@ -20,7 +20,7 @@ help: ## List targets
 check: test ## Check every Twig: the schema, names, requires, and the Nest's rules (BASE=origin/main also checks version bumps)
 	$(TWIGS) check $(if $(BASE),-base $(BASE),)
 
-index: ## Rewrite catalog.json and the README's table of Twigs (CI does it after a merge)
+index: ## Rewrite catalog.json (CI does it after a merge)
 	$(TWIGS) index
 
 new: ## Start twigs/$(NAME)/twig.yaml from a template: make new NAME=mytool

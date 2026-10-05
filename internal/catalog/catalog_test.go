@@ -10,8 +10,8 @@ import (
 )
 
 // TestRepository: this repository's Twigs pass every check and index.
-// catalog.json and the README's table may lag a pull request: the index
-// workflow rewrites them on main.
+// catalog.json may lag a pull request: the index workflow rewrites it on
+// main.
 func TestRepository(t *testing.T) {
 	c, ps, err := Load("../..")
 	if err != nil {
@@ -22,10 +22,6 @@ func TestRepository(t *testing.T) {
 		t.Error(p)
 	}
 	if _, err := c.Index(); err != nil {
-		t.Fatal(err)
-	}
-	readme, _ := os.ReadFile("../../README.md")
-	if _, err := c.WithTable(readme); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -141,11 +137,11 @@ func TestCheckVersions(t *testing.T) {
 	c, ps := fixture(t, map[string]string{"core": core, "a": a, "b": b})
 	wants(t, ps)
 	base := map[string][]byte{
-		"twigs/a/twig.yaml": []byte(a),                                   // unchanged
+		"twigs/a/twig.yaml": []byte(a),                                  // unchanged
 		"twigs/b/twig.yaml": []byte(head("b", "1.0.0") + "tags: [z]\n"), // changed and raised
 	}
 	wants(t, c.CheckVersions(base))
-	base["twigs/a/twig.yaml"] = []byte("# a comment\n" + a)               // a comment only
+	base["twigs/a/twig.yaml"] = []byte("# a comment\n" + a)                // a comment only
 	base["twigs/b/twig.yaml"] = []byte(head("b", "1.2.0") + "tags: [z]\n") // lowered
 	wants(t, c.CheckVersions(base), "twigs/a/twig.yaml: /version: is 1.0.0, as before", "twigs/b/twig.yaml: /version: went down from 1.2.0 to 1.1.0")
 }

@@ -10,7 +10,7 @@
 - [ ] Every download is pinned to a version and checked against its SHA-256, for amd64 and arm64, and `notes` says where the checksums come from.
 - [ ] A changed Twig raises its `version`; a new one starts at `1.0.0`.
 - [ ] A Credential type's checks only read: its `authn` check proves the credential logs in, and its `permissions_hint` says what read-only means.
-- [ ] I did not edit `catalog.json` or the README's table: a bot rewrites them after the merge.
+- [ ] I did not edit `catalog.json`: a bot rewrites it after the merge.
 
 ### How I tested it
 

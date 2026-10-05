@@ -1,6 +1,5 @@
 # index: after a merge, rewrites catalog.json (the index every Nest reads)
-# and the README's table of Twigs from twigs/, and commits them, so a
-# contributor never edits either. main takes changes only through reviewed
+# from twigs/ and commits it, so a contributor never edits it. main takes changes only through reviewed
 # pull requests; this workflow pushes with the INDEX_DEPLOY_KEY secret, a
 # write deploy key the branch's ruleset lets through, so its token stays
 # read-only.
@@ -12,7 +11,6 @@ on:
     paths:
       - "twigs/**"
       - "catalog.json"
-      - "README.md"
       - "schema/**"
       - "cmd/**"
       - "internal/**"
@@ -51,12 +49,12 @@ jobs:
           # A merge that lands meanwhile rejects the push: index again on it.
           for _ in 1 2 3; do
             make index
-            if git diff --quiet -- catalog.json README.md; then
-              echo "catalog.json and README.md are current"
+            if git diff --quiet -- catalog.json; then
+              echo "catalog.json is current"
               exit 0
             fi
-            git add catalog.json README.md
-            git commit -m "Index: catalog.json and the README's table"
+            git add catalog.json
+            git commit -m "Index: catalog.json"
             if git push origin HEAD:main; then
               exit 0
             fi

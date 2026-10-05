@@ -35,7 +35,7 @@ Please follow the [code of conduct](CODE_OF_CONDUCT.md). To report a security pr
 
    CI runs `make check` against the pull request's base branch, and `make lint`.
 
-4. Open a pull request. CI runs the same checks and annotates any problem on the file. Leave `catalog.json` and the README's table alone: after the merge, the [index workflow](.github/workflows/index.yml) rewrites both.
+4. Open a pull request. CI runs the same checks and annotates any problem on the file. Leave `catalog.json` alone: after the merge, the [index workflow](.github/workflows/index.yml) rewrites it.
 
 To change a Twig, edit its file, raise its `version` (a fix or a comment is a patch release, a new Tool version or field a minor one, `-rc.1` style pre-releases are fine), and follow steps 3 and 4. Any change to the file needs a new version: a Nest installs a file by its digest, so a changed file at the same version would never reach anyone.
 
