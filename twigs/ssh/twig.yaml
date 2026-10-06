@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
 twig: twig-nest/twig/v1
 name: ssh
-version: 1.1.1
+version: 2.0.0
 summary: SSH access to hosts with a private key and pinned host keys
 publisher: Twig Nest project
 homepage: https://www.openssh.com/manual.html
@@ -9,28 +9,28 @@ license: Apache-2.0
 tags: [host]
 authenticator_types:
 - authenticator_type: ssh.key
-  version: 3
+  version: 4
   provider: ssh
-  summary: An SSH private key and the host's known_hosts lines, for ssh and scp to one host
+  summary: An SSH private key and the host's known_hosts lines, for ssh and scp to one host; a Job carries one per host
   interactive: false
   secrets:
     key:
       as: file
       path: id_key
-      env: SSH_KEY_FILE
+      env: SSH_KEY_{params.name}
     known_hosts:
       as: file
       path: known_hosts
-      env: SSH_KNOWN_HOSTS
-  env:
-    SSH_HOST: '{params.host}'
-    SSH_PORT: '{params.port}'
-    SSH_USER: '{params.user}'
+      env: SSH_KNOWN_HOSTS_{params.name}
   params:
     type: object
     additionalProperties: false
-    required: [host, port, user]
+    required: [name, host, port, user]
     properties:
+      name:
+        type: string
+        pattern: '^[A-Z][A-Z0-9_]{0,31}$'
+        description: The host's short name, upper case and unique in the Environment (DATABASE_VM). The Credential's variables end in it (SSH_KEY_DATABASE_VM, SSH_KNOWN_HOSTS_DATABASE_VM), so a Job carries a Credential for each host.
       host:
         type: string
         pattern: '^[A-Za-z0-9.:-]{1,253}$'
@@ -47,12 +47,12 @@ authenticator_types:
   # It reads ~/.ssh from the user's passwd home, not the Job's HOME, so the
   # key and known_hosts are always passed as flags.
   requires_tools: [ssh]
-  usage: ssh -i "$SSH_KEY_FILE" -o UserKnownHostsFile="$SSH_KNOWN_HOSTS" -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" <command>
+  usage: ssh -i "$SSH_KEY_{params.name}" -o UserKnownHostsFile="$SSH_KNOWN_HOSTS_{params.name}" -o StrictHostKeyChecking=yes -o IdentitiesOnly=yes -o BatchMode=yes -o ConnectTimeout=15 -p {params.port} {params.user}@{params.host} <command>
   guide: |
-    Every ssh call names the key, the pinned host keys, and the port: use the form above as it is, with the variables, which are set. Nothing else is configured: no alias such as the Target's name resolves (the host is {params.host}), ssh-agent holds no key, and ssh cannot write to its home directory, so it never learns a host key on its own.
+    This Credential reaches {params.user}@{params.host} only, with its own key and pinned host keys in SSH_KEY_{params.name} and SSH_KNOWN_HOSTS_{params.name}. Every ssh call names them and the port: use the form above as it is. Another host has its own Credential and its own variables; never use one host's variables for another. Nothing else is configured: no alias such as the Target's name resolves, ssh-agent holds no key, and ssh cannot write to its home directory, so it never learns a host key on its own.
 
-    - One command: `ssh <the options above> "$SSH_USER@$SSH_HOST" 'df -h /'`.
-    - Several commands: send a script on standard input with a quoted heredoc, which keeps your quoting as it is: `ssh <the options above> "$SSH_USER@$SSH_HOST" 'bash -s' <<'EOF'`, the lines, then `EOF`. Nested quotes in a one-line command break easily; the heredoc does not.
+    - One command: `ssh <the options above> {params.user}@{params.host} 'df -h /'`.
+    - Several commands: send a script on standard input with a quoted heredoc, which keeps your quoting as it is: `ssh <the options above> {params.user}@{params.host} 'bash -s' <<'EOF'`, the lines, then `EOF`. Nested quotes in a one-line command break easily; the heredoc does not.
     - Filter on the host (`du -xh -d1 / | sort -rh | head -20`, `journalctl --since -1h | tail -200`): long output is cut.
     - `Host key verification failed`: the host's key is not the one in the Credential's known_hosts. Stop and tell the people watching; never pass `StrictHostKeyChecking=no` or `accept-new`.
     - `Permission denied (publickey)`: the key is not authorized for {params.user}. Do not retry or try another user.
