@@ -431,7 +431,7 @@
     },
     {
       "name": "ssh",
-      "version": "1.1.1",
+      "version": "2.0.0",
       "summary": "SSH access to hosts with a private key and pinned host keys",
       "publisher": "Twig Nest project",
       "tags": [
@@ -443,7 +443,7 @@
         ]
       },
       "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/ssh/twig.yaml",
-      "sha256": "88bef707ccba8b540ee8e0b4e285248f70ed49ad406038d620047ea08225a94d"
+      "sha256": "bd2aa0e4aa2b3baf3653902a4bdb66d09d643b862f28a3c42740a279e742e9f3"
     },
     {
       "name": "tailscale",
