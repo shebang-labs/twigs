@@ -2,8 +2,8 @@
 # A bundle: a Nest installs it at start when it is missing.
 twig: twig-nest/twig/v1
 name: core
-version: 1.0.1
-summary: 'What every Nest starts with: Kubernetes, HTTP APIs, GitHub and GitLab, registries, the network Hop kinds, ambient identity, and Claude Code'
+version: 1.1.0
+summary: 'What every Nest starts with: Kubernetes, HTTP APIs, GitHub, registries, the network Hop kinds, ambient identity, and Claude Code'
 publisher: Twig Nest project
 license: Apache-2.0
 tags:
@@ -12,7 +12,6 @@ requires:
 - name: kubernetes
 - name: http
 - name: github
-- name: gitlab
 - name: registry
 - name: network
 - name: ambient
