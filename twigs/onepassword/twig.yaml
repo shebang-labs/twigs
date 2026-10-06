@@ -1,0 +1,73 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
+twig: twig-nest/twig/v1
+name: onepassword
+version: 1.0.0
+summary: 1Password service accounts, and the op CLI, so an agent reads the secrets it needs
+publisher: Twig Nest project
+license: Apache-2.0
+tags:
+- secrets
+authenticator_types:
+- authenticator_type: onepassword.service_account
+  version: 1
+  provider: onepassword
+  summary: 'A 1Password service account token: op reads items of the vaults the account may read'
+  interactive: false
+  secrets:
+    token:
+      as: env
+      env: OP_SERVICE_ACCOUNT_TOKEN
+  env:
+    OP_VAULTS: '{params.vaults}'
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - vaults
+    properties:
+      vaults:
+        type: string
+        pattern: ^[^\n]{1,512}$
+        description: The vaults the service account may read, comma-separated, as the agent should name them (op vault list shows the same).
+  requires_tools:
+  - op
+  requires_network:
+  - my.1password.com:443
+  usage: 'op read "op://<vault>/<item>/<field>" (OP_SERVICE_ACCOUNT_TOKEN is set; OP_VAULTS lists the vaults)'
+  guide: |
+    The service account reads the vaults in OP_VAULTS ({params.vaults}). Find a secret, then use it in the command that needs it, never on its own:
+
+    - What is there: `op vault list`, then `op item list --vault "<vault>"`, and `op item get "<item>" --vault "<vault>"` for an item's field names (concealed values are not shown).
+    - One value, straight into the command: `PGPASSWORD="$(op read 'op://<vault>/<item>/password')" psql -h <host> -U <user> -d <db> -c 'select 1'`, or `REDISCLI_AUTH="$(op read 'op://<vault>/<item>/password')" redis-cli -h <host> ping`.
+    - Never print a value: no `--reveal`, no `echo`, no value in a note, the report, or a file you keep. A secret that reached your output must be named in the report so a person rotates it.
+    - `[ERROR] ... isn't a vault in this account` or `... isn't an item`: the account may not read it. Do not guess other names; say what you looked for.
+    - `[ERROR] ... authentication` or a 401: the token is revoked or expired. Stop and tell the people watching.
+  preflight:
+    authn:
+      run: op whoami --format json
+      expect:
+        exit_code: 0
+      timeout: 30s
+  permissions_hint: 'A 1Password service account (Developer → Service accounts) with Read items on only the vaults agents need: a vault per environment or system, never Private or the admins'' vault. A service account cannot be given more than its vaults, and Read items cannot change, share, or delete anything. Put its token (ops_...) in a Secret of the Environment, and name the vaults in the Credential.'
+tools:
+- id: op
+  version: 2.40.0
+  summary: The 1Password CLI
+  install: |
+    ARG TARGETARCH
+    RUN set -eu; \
+        case "${TARGETARCH}" in \
+          amd64) sha=74277219e8da60958c00f9aee9d2023225e98fdda8bfd2156a5d9e85e0edaab3 ;; \
+          arm64) sha=0e8ac99ee93d661aa725dc24a5ef8bf344741d224064a5dfb469dc689faec86a ;; \
+          *) echo "op: no build for ${TARGETARCH}" >&2; exit 1 ;; \
+        esac; \
+        curl --proto '=https' --tlsv1.2 -fsSL --retry 3 -o /tmp/op.zip "https://cache.agilebits.com/dist/1P/op2/pkg/v2.40.0/op_linux_${TARGETARCH}_v2.40.0.zip"; \
+        echo "${sha}  /tmp/op.zip" | sha256sum --check --strict -; \
+        mkdir -p /tmp/op.d; \
+        unzip -q /tmp/op.zip -d /tmp/op.d; \
+        install -m 0755 /tmp/op.d/op /usr/local/bin/op; \
+        rm -rf /tmp/op.zip /tmp/op.d
+  provides:
+  - binary: op
+    version_command: op --version
+  notes: 'Proprietary (1Password terms of service), free to use with a 1Password account. Checksums: computed from the release zips on cache.agilebits.com; the op binary inside carries a detached GPG signature (op.sig) that verifies against 1Password''s code signing key 3FEF 9748 469A DBE1 5DA7 CA80 AC2D 6274 2012 EA22.'
