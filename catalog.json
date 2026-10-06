@@ -318,6 +318,25 @@
       "sha256": "b1ac7116aa30d0c636b4295d275ac5cc0616af8e39ceda70ae3b7ab44059228f"
     },
     {
+      "name": "onepassword",
+      "version": "1.0.0",
+      "summary": "1Password service accounts, and the op CLI, so an agent reads the secrets it needs",
+      "publisher": "Twig Nest project",
+      "tags": [
+        "secrets"
+      ],
+      "provides": {
+        "authenticator_types": [
+          "onepassword.service_account"
+        ],
+        "tools": [
+          "op"
+        ]
+      },
+      "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/onepassword/twig.yaml",
+      "sha256": "43511014227e6f94ab1a2d1075185727a8d17a47607cf548f869240b152c1f3d"
+    },
+    {
       "name": "opencode",
       "version": "1.1.1",
       "summary": "OpenCode as an investigating agent, driven over the Agent Client Protocol (any model provider)",
