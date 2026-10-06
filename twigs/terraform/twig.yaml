@@ -1,12 +1,53 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/shebang-labs/twigs/main/schema/twig.json
 twig: twig-nest/twig/v1
 name: terraform
-version: 1.0.0
+version: 1.1.0
 summary: The Terraform CLI
 publisher: Twig Nest project
 license: Apache-2.0
 tags:
 - iac
+authenticator_types:
+- authenticator_type: terraform.token
+  version: 1
+  provider: terraform
+  summary: A Terraform Cloud or Terraform Enterprise token, for the terraform CLI and the API
+  interactive: false
+  secrets:
+    token:
+      as: env
+      env: TF_TOKEN_{params.host_var}
+  params:
+    type: object
+    additionalProperties: false
+    required:
+    - organization
+    properties:
+      organization:
+        type: string
+        pattern: ^[A-Za-z0-9][A-Za-z0-9_-]{0,62}$
+        description: 'The organization the token belongs to, for example example-org.'
+      hostname:
+        type: string
+        pattern: ^[a-z0-9][a-z0-9.-]*(:[0-9]{1,5})?$
+        default: app.terraform.io
+        description: 'The Terraform Cloud hostname: app.terraform.io (the default) or a Terraform Enterprise host.'
+      host_var:
+        type: string
+        pattern: ^[A-Za-z0-9_]+$
+        default: app_terraform_io
+        description: The hostname with dots and dashes as underscores, as terraform's TF_TOKEN_<host> names it.
+  usage: 'terraform reads TF_TOKEN_{params.host_var}; read-only API calls: curl -H "Authorization: Bearer $TF_TOKEN_{params.host_var}" https://{params.hostname}/api/v2/...'
+  requires_tools:
+  - sh
+  - curl
+  preflight:
+    authn:
+      run: 'sh -c ''curl -fsS -H "Authorization: Bearer $TF_TOKEN_{params.host_var}" https://{params.hostname}/api/v2/organizations/{params.organization}'''
+      expect:
+        json: $.data.id
+      timeout: 20s
+  permissions_hint: A team or organization token with read-only access to the workspaces (no apply, no state write); never an owner token.
 tools:
 - id: terraform
   version: 1.16.4
