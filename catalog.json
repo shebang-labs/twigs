@@ -449,19 +449,22 @@
     },
     {
       "name": "terraform",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "summary": "The Terraform CLI",
       "publisher": "Twig Nest project",
       "tags": [
         "iac"
       ],
       "provides": {
+        "authenticator_types": [
+          "terraform.token"
+        ],
         "tools": [
           "terraform"
         ]
       },
       "url": "https://raw.githubusercontent.com/twig-nest/twigs/main/twigs/terraform/twig.yaml",
-      "sha256": "cceec09e1aeaf8ff650ba0749bf1aef7a08c4b2f34a3e8fa44891ff68de64856"
+      "sha256": "a0bd9d4cee4e4cd10bfa2b87f07bb370df7ff99cc5406de43a9d3a1c7929df70"
     },
     {
       "name": "vault",
